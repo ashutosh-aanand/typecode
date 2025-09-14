@@ -17,6 +17,7 @@ export default function MetricsDisplay() {
     timeInSeconds: 0,
     accuracy: 0,
     wpm: 0,
+    cpm: 0,
     totalCharacters: 0,
     correctCharacters: 0,
     errorCount: 0,
@@ -29,6 +30,7 @@ export default function MetricsDisplay() {
         timeInSeconds: 0,
         accuracy: 0,
         wpm: 0,
+        cpm: 0,
         totalCharacters: 0,
         correctCharacters: 0,
         errorCount: 0,
@@ -57,13 +59,13 @@ export default function MetricsDisplay() {
       {/* Simple metrics row */}
       <div className="flex justify-center items-center gap-8 text-lg">
         <div className="text-gray-600 dark:text-gray-400">
-          <span className="font-mono">{Math.floor(displayMetrics.timeInSeconds)}s</span>
+          <span className="font-mono">{Math.floor(displayMetrics.timeInSeconds || 0)}s</span>
         </div>
         <div className="text-gray-600 dark:text-gray-400">
-          <span className="font-mono">{Math.round(displayMetrics.cpm)}</span> cpm
+          <span className="font-mono">{Math.round(displayMetrics.cpm || 0)}</span> cpm
         </div>
         <div className="text-gray-600 dark:text-gray-400">
-          <span className="font-mono">{displayMetrics.accuracy.toFixed(1)}%</span>
+          <span className="font-mono">{(displayMetrics.accuracy || 0).toFixed(1)}%</span>
         </div>
         {displayMetrics.errorCount > 0 && (
           <div className="text-red-500 dark:text-red-400">

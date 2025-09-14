@@ -14,6 +14,7 @@ const initialState = {
   endTime: null,
   correctChars: 0,
   totalChars: 0,
+  manuallyTypedChars: 0,
   errors: [],
   metrics: null,
 };
@@ -39,6 +40,7 @@ export const useTypingStore = create<TypingStore>()(
           endTime: null,
           correctChars: 0,
           totalChars: 0,
+          manuallyTypedChars: 0,
           errors: [],
           metrics: null,
         });
@@ -60,6 +62,7 @@ export const useTypingStore = create<TypingStore>()(
             endTime: null,
             correctChars: 0,
             totalChars: 0,
+            manuallyTypedChars: 0,
             errors: [],
             metrics: null,
           });
@@ -67,15 +70,18 @@ export const useTypingStore = create<TypingStore>()(
       },
 
       // Update user input and track progress
-      updateUserInput: (input: string) => {
+      updateUserInput: (input: string, manuallyTypedChars?: number) => {
         const state = get();
-        const { currentSnippet, startTime } = state;
+        const { currentSnippet, startTime, manuallyTypedChars: currentManualChars } = state;
         
         if (!currentSnippet) return;
 
         // Start session on first keystroke
         const newStartTime = startTime || Date.now();
         const isFirstInput = !startTime;
+
+        // Update manually typed characters count
+        const newManualChars = manuallyTypedChars !== undefined ? manuallyTypedChars : currentManualChars;
 
         // Compare input with target text
         const comparison = compareTexts(input, currentSnippet.code);
@@ -86,7 +92,7 @@ export const useTypingStore = create<TypingStore>()(
           const metrics = calculateTypingMetrics(
             newStartTime,
             endTime,
-            comparison.totalChars,
+            newManualChars, // Use manually typed chars instead of total chars
             comparison.correctChars,
             comparison.errors.length
           );
@@ -99,6 +105,7 @@ export const useTypingStore = create<TypingStore>()(
             isComplete: true,
             correctChars: comparison.correctChars,
             totalChars: comparison.totalChars,
+            manuallyTypedChars: newManualChars,
             errors: comparison.errors,
             metrics,
           });
@@ -109,6 +116,7 @@ export const useTypingStore = create<TypingStore>()(
             isActive: isFirstInput ? true : state.isActive,
             correctChars: comparison.correctChars,
             totalChars: comparison.totalChars,
+            manuallyTypedChars: newManualChars,
             errors: comparison.errors,
             currentPosition: input.length,
           });
@@ -162,6 +170,7 @@ export const useTypingStore = create<TypingStore>()(
           endTime: null,
           correctChars: 0,
           totalChars: 0,
+          manuallyTypedChars: 0,
           errors: [],
           metrics: null,
         });
@@ -175,6 +184,7 @@ export const useTypingStore = create<TypingStore>()(
             timeInSeconds: 0,
             accuracy: 0,
             wpm: 0,
+            cpm: 0,
             totalCharacters: 0,
             correctCharacters: 0,
             errorCount: 0,
@@ -185,7 +195,7 @@ export const useTypingStore = create<TypingStore>()(
         return calculateTypingMetrics(
           state.startTime,
           currentTime,
-          state.totalChars,
+          state.manuallyTypedChars || state.totalChars, // Use manually typed chars if available
           state.correctChars,
           state.errors.length
         );

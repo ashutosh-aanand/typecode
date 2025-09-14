@@ -391,3 +391,41 @@ git commit -m "feat: Complete Phase 2 - Snippet System & Display"
 - **Phase 4**: ✅ Metrics & Polish
 
 ### Ready for Production Deployment! 🚀
+
+---
+
+## 📚 CPM Logic Documentation - September 14, 2025
+
+### 🎯 Task: Document CPM Calculation Logic
+
+**Context**: User requested documentation of the CPM (Characters Per Minute) logic implementation.
+
+**Actions Taken**:
+1. **Created comprehensive CPM documentation** (`./dev-docs/CPM_LOGIC.md`)
+   - Detailed explanation of effective keystrokes concept
+   - Code examples from actual implementation
+   - Keystroke counting rules and examples
+   - Real-world scenarios with auto-indentation
+   - Performance rating scales
+   - Technical implementation details
+
+2. **Documentation covers**:
+   - `countEffectiveKeystrokes()` function logic
+   - Integration with metrics calculation
+   - Store state management
+   - Auto-indentation handling
+   - Backspace behavior
+   - Error correction impact
+
+**Key Insights Documented**:
+- CPM based on "effective keystrokes" (user-typed only)
+- Auto-generated indentation doesn't inflate scores
+- Backspace allows free corrections without penalties
+- Real-time updates every 100ms during typing
+- Fair measurement of actual typing effort
+
+**Files Modified**:
+- `./dev-docs/CPM_LOGIC.md` (new comprehensive documentation)
+- `./dev-docs/devlogs.md` (this log entry)
+
+**Status**: ✅ Documentation complete, ready for commit

@@ -13,15 +13,21 @@ export const calculateTypingMetrics = (
   const timeInSeconds = (endTime - startTime) / 1000;
   const accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0;
   
+  const minutes = timeInSeconds / 60;
+  
   // WPM calculation: (characters / 5) / minutes
   // Standard formula where 5 characters = 1 word
-  const minutes = timeInSeconds / 60;
   const wpm = minutes > 0 ? (correctChars / 5) / minutes : 0;
+  
+  // CPM calculation: characters / minutes
+  // More accurate for code typing with symbols and varied character types
+  const cpm = minutes > 0 ? correctChars / minutes : 0;
 
   return {
     timeInSeconds: Math.round(timeInSeconds * 100) / 100, // Round to 2 decimal places
     accuracy: Math.round(accuracy * 100) / 100, // Round to 2 decimal places
     wpm: Math.round(wpm),
+    cpm: Math.round(cpm),
     totalCharacters: totalChars,
     correctCharacters: correctChars,
     errorCount
@@ -74,6 +80,17 @@ export const getPerformanceRating = (wpm: number): string => {
   if (wpm >= 40) return 'Good';
   if (wpm >= 25) return 'Average';
   if (wpm >= 15) return 'Below Average';
+  return 'Beginner';
+};
+
+/**
+ * Get performance rating based on CPM (more accurate for code)
+ */
+export const getCpmPerformanceRating = (cpm: number): string => {
+  if (cpm >= 300) return 'Excellent';
+  if (cpm >= 200) return 'Good';
+  if (cpm >= 125) return 'Average';
+  if (cpm >= 75) return 'Below Average';
   return 'Beginner';
 };
 

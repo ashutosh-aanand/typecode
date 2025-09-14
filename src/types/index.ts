@@ -12,7 +12,8 @@ export interface Snippet {
 export interface TypingMetrics {
   timeInSeconds: number;
   accuracy: number; // percentage (0-100)
-  wpm: number; // words per minute
+  wpm: number; // words per minute (kept for compatibility)
+  cpm: number; // characters per minute
   totalCharacters: number;
   correctCharacters: number;
   errorCount: number;
@@ -35,6 +36,7 @@ export interface TypingState {
   // Real-time metrics
   correctChars: number;
   totalChars: number;
+  manuallyTypedChars: number; // Characters actually typed by user (excluding auto-indentation)
   errors: number[];
   
   // Final results
@@ -45,7 +47,7 @@ export interface TypingStore extends TypingState {
   // Actions
   loadRandomSnippet: () => void;
   loadSnippetById: (id: string) => void;
-  updateUserInput: (input: string) => void;
+  updateUserInput: (input: string, manuallyTypedChars?: number) => void;
   startSession: () => void;
   endSession: () => void;
   resetSession: () => void;

@@ -68,7 +68,42 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
     if (disabled || isComplete) return;
     
     const value = e.target.value;
-    updateUserInput(value);
+    const effectiveKeystrokes = currentSnippet ? countEffectiveKeystrokes(value, currentSnippet.code) : value.length;
+    updateUserInput(value, effectiveKeystrokes);
+  };
+
+  // Count effective keystrokes (excluding auto-generated indentation)
+  const countEffectiveKeystrokes = (input: string, target: string): number => {
+    let effectiveCount = 0;
+    let i = 0;
+    
+    while (i < input.length && i < target.length) {
+      if (input[i] === target[i]) {
+        // This is a correct character
+        if (input[i] === '\n') {
+          // Count newline as 1 keystroke
+          effectiveCount += 1;
+          i++;
+          
+          // Skip auto-generated indentation in both input and target
+          while (i < input.length && i < target.length && 
+                 input[i] === target[i] && 
+                 (input[i] === ' ' || input[i] === '\t')) {
+            i++;
+          }
+        } else {
+          // Regular character - count as 1 keystroke
+          effectiveCount += 1;
+          i++;
+        }
+      } else {
+        // Incorrect character - still count as a keystroke attempt
+        effectiveCount += 1;
+        i++;
+      }
+    }
+    
+    return effectiveCount;
   };
 
   // Handle key events with smart indentation

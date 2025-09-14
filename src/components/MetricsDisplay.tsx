@@ -60,7 +60,7 @@ export default function MetricsDisplay() {
           <span className="font-mono">{Math.floor(displayMetrics.timeInSeconds)}s</span>
         </div>
         <div className="text-gray-600 dark:text-gray-400">
-          <span className="font-mono">{Math.round(displayMetrics.wpm)}</span> wpm
+          <span className="font-mono">{Math.round(displayMetrics.cpm)}</span> cpm
         </div>
         <div className="text-gray-600 dark:text-gray-400">
           <span className="font-mono">{displayMetrics.accuracy.toFixed(1)}%</span>

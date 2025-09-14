@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useTypingStore } from '@/store/typing-store';
 import { ProgrammingLanguage } from '@/types';
 import Controls from '@/components/Controls';
@@ -36,24 +37,32 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
               typecode
             </h1>
-            <div className="flex items-center gap-3 text-sm">
-              {['java', 'cpp', 'python', 'javascript'].map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => !isActive && setLanguage(lang as ProgrammingLanguage)}
-                  disabled={isActive}
-                  className={`
-                    transition-colors duration-200
-                    ${selectedLanguage === lang 
-                      ? 'text-gray-500 dark:text-gray-400' 
-                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400'
-                    }
-                    ${isActive ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-                  `}
-                >
-                  {lang === 'cpp' ? 'c++' : lang === 'javascript' ? 'js' : lang}
-                </button>
-              ))}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 text-sm">
+                {['java', 'cpp', 'python', 'javascript'].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => !isActive && setLanguage(lang as ProgrammingLanguage)}
+                    disabled={isActive}
+                    className={`
+                      transition-colors duration-200
+                      ${selectedLanguage === lang 
+                        ? 'text-gray-500 dark:text-gray-400' 
+                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400'
+                      }
+                      ${isActive ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                    `}
+                  >
+                    {lang === 'cpp' ? 'c++' : lang === 'javascript' ? 'js' : lang}
+                  </button>
+                ))}
+              </div>
+              <Link 
+                href="/dashboard"
+                className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 transition-colors"
+              >
+                dashboard
+              </Link>
             </div>
           </div>
         </div>

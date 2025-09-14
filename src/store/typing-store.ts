@@ -3,6 +3,7 @@ import { devtools } from 'zustand/middleware';
 import { Snippet, TypingStore, ProgrammingLanguage } from '@/types';
 import multiLanguageSnippets from '@/data/multi-language-snippets.json';
 import { calculateTypingMetrics, compareTexts } from '@/utils/metrics';
+import { addTypingSession } from '@/utils/analytics';
 
 const initialState = {
   currentSnippet: null,
@@ -18,6 +19,7 @@ const initialState = {
   manuallyTypedChars: 0,
   errors: [],
   metrics: null,
+  restartCount: 0,
 };
 
 export const useTypingStore = create<TypingStore>()(
@@ -74,6 +76,7 @@ export const useTypingStore = create<TypingStore>()(
             manuallyTypedChars: 0,
             errors: [],
             metrics: null,
+            restartCount: 0,
           });
         }
       },
@@ -118,6 +121,20 @@ export const useTypingStore = create<TypingStore>()(
             correctCharsForAccuracy,
             comparison.errors.length
           );
+
+          // Save analytics data
+          if (currentSnippet) {
+            addTypingSession(
+              currentSnippet.language,
+              currentSnippet.id,
+              currentSnippet.title,
+              currentSnippet.difficulty,
+              currentSnippet.category,
+              metrics,
+              true, // completed
+              state.restartCount
+            );
+          }
 
           set({
             userInput: input,
@@ -183,6 +200,34 @@ export const useTypingStore = create<TypingStore>()(
 
       // Reset the current session
       resetSession: () => {
+        const state = get();
+        
+        // If there was an active session, save it as incomplete
+        if (state.isActive && state.currentSnippet && state.startTime) {
+          const currentTime = Date.now();
+          const totalCharsForAccuracy = state.manuallyTypedChars || state.totalChars;
+          const correctCharsForAccuracy = Math.min(state.correctChars, totalCharsForAccuracy);
+          
+          const metrics = calculateTypingMetrics(
+            state.startTime,
+            currentTime,
+            totalCharsForAccuracy,
+            correctCharsForAccuracy,
+            state.errors.length
+          );
+          
+          addTypingSession(
+            state.currentSnippet.language,
+            state.currentSnippet.id,
+            state.currentSnippet.title,
+            state.currentSnippet.difficulty,
+            state.currentSnippet.category,
+            metrics,
+            false, // not completed
+            state.restartCount
+          );
+        }
+
         set({
           userInput: '',
           currentPosition: 0,
@@ -195,6 +240,7 @@ export const useTypingStore = create<TypingStore>()(
           manuallyTypedChars: 0,
           errors: [],
           metrics: null,
+          restartCount: state.restartCount + 1,
         });
       },
 

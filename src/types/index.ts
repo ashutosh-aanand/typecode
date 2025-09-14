@@ -44,6 +44,7 @@ export interface TypingState {
   totalChars: number;
   manuallyTypedChars: number; // Characters actually typed by user (excluding auto-indentation)
   errors: number[];
+  restartCount: number;
   
   // Final results
   metrics: TypingMetrics | null;

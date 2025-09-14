@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { useTypingStore } from '@/store/typing-store';
+import { ProgrammingLanguage } from '@/types';
 import Controls from '@/components/Controls';
 import EnhancedTypingArea from '@/components/EnhancedTypingArea';
 import MetricsDisplay from '@/components/MetricsDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import LanguageSelector from '@/components/LanguageSelector';
 
 export default function Home() {
   const { 
@@ -14,6 +14,7 @@ export default function Home() {
     isActive, 
     isComplete,
     selectedLanguage,
+    setLanguage,
     loadRandomSnippet,
     resetSession
   } = useTypingStore();
@@ -31,16 +32,29 @@ export default function Home() {
         ${isActive ? 'max-h-0 py-0 opacity-0' : 'max-h-20 py-8 opacity-100'}
       `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
-                typecode
-              </h1>
-              <span className="text-gray-500 dark:text-gray-400 text-sm hidden sm:inline">
-                {selectedLanguage} dsa
-              </span>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
+              typecode
+            </h1>
+            <div className="flex items-center gap-3 text-sm">
+              {['java', 'cpp', 'python', 'javascript'].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => !isActive && setLanguage(lang as ProgrammingLanguage)}
+                  disabled={isActive}
+                  className={`
+                    transition-colors duration-200
+                    ${selectedLanguage === lang 
+                      ? 'text-gray-500 dark:text-gray-400' 
+                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400'
+                    }
+                    ${isActive ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                  `}
+                >
+                  {lang === 'cpp' ? 'c++' : lang === 'javascript' ? 'js' : lang}
+                </button>
+              ))}
             </div>
-            <LanguageSelector />
           </div>
         </div>
       </header>

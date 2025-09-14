@@ -36,125 +36,15 @@ export default function OverlayTypingArea({ disabled = false }: OverlayTypingAre
     updateUserInput(value);
   };
 
-  // Get current line indentation
-  const getCurrentLineIndentation = (text: string, cursorPos: number): string => {
-    const lines = text.substring(0, cursorPos).split('\n');
-    const currentLine = lines[lines.length - 1];
-    const match = currentLine.match(/^(\s*)/);
-    return match ? match[1] : '';
-  };
-
-
-  // Handle key events with code-friendly features
+  // Handle key events - simplified for typing practice
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (disabled || isComplete) return;
 
-    const textarea = e.currentTarget;
-    const cursorPos = textarea.selectionStart;
-    const value = textarea.value;
-
-    // Handle Enter key for auto-indentation
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      
-      const currentIndentation = getCurrentLineIndentation(value, cursorPos);
-      const charBeforeCursor = value[cursorPos - 1];
-      const charAfterCursor = value[cursorPos];
-      
-      let newValue = value;
-      let newCursorPos = cursorPos;
-      
-      // Check if we're between opening and closing brackets
-      const isBetweenBrackets = 
-        (charBeforeCursor === '{' && charAfterCursor === '}') ||
-        (charBeforeCursor === '(' && charAfterCursor === ')') ||
-        (charBeforeCursor === '[' && charAfterCursor === ']');
-      
-      if (isBetweenBrackets) {
-        // Add extra indentation for the cursor line and maintain indentation for closing bracket
-        const extraIndent = '    '; // 4 spaces
-        newValue = 
-          value.substring(0, cursorPos) + 
-          '\n' + currentIndentation + extraIndent + 
-          '\n' + currentIndentation + 
-          value.substring(cursorPos);
-        newCursorPos = cursorPos + 1 + currentIndentation.length + extraIndent.length;
-      } else {
-        // Regular auto-indentation
-        let indentation = currentIndentation;
-        
-        // Add extra indentation after opening brackets
-        if (charBeforeCursor === '{' || charBeforeCursor === '(' || charBeforeCursor === '[') {
-          indentation += '    '; // 4 spaces
-        }
-        
-        newValue = 
-          value.substring(0, cursorPos) + 
-          '\n' + indentation + 
-          value.substring(cursorPos);
-        newCursorPos = cursorPos + 1 + indentation.length;
-      }
-      
-      updateUserInput(newValue);
-      
-      // Set cursor position after state update
-      setTimeout(() => {
-        if (textarea) {
-          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
-        }
-      }, 0);
-      
-      return;
-    }
-
-    // Handle Tab key for indentation
+    // Handle Tab key - prevent default behavior
     if (e.key === 'Tab') {
       e.preventDefault();
-      
-      const indent = '    '; // 4 spaces
-      const newValue = 
-        value.substring(0, cursorPos) + 
-        indent + 
-        value.substring(cursorPos);
-      
-      updateUserInput(newValue);
-      
-      // Set cursor position after indentation
-      setTimeout(() => {
-        if (textarea) {
-          textarea.selectionStart = textarea.selectionEnd = cursorPos + indent.length;
-        }
-      }, 0);
-      
       return;
     }
-
-    // Handle Backspace for smart indentation deletion
-    if (e.key === 'Backspace') {
-      const charBefore = value[cursorPos - 1];
-      
-      // Smart indentation deletion (delete 4 spaces at once if at beginning of line)
-      if (charBefore === ' ') {
-        const lineStart = value.lastIndexOf('\n', cursorPos - 1) + 1;
-        const beforeCursor = value.substring(lineStart, cursorPos);
-        
-        if (beforeCursor.match(/^    $/)) { // Exactly 4 spaces
-          e.preventDefault();
-          const newValue = 
-            value.substring(0, cursorPos - 4) + 
-            value.substring(cursorPos);
-          updateUserInput(newValue);
-          
-          setTimeout(() => {
-            if (textarea) {
-              textarea.selectionStart = textarea.selectionEnd = cursorPos - 4;
-            }
-          }, 0);
-          return;
-        }
-      }
-    }
-
 
     // Handle Ctrl shortcuts
     if (e.ctrlKey) {
@@ -338,20 +228,13 @@ export default function OverlayTypingArea({ disabled = false }: OverlayTypingAre
         )}
       </div>
 
-      {/* Keyboard shortcuts and features */}
-      <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center space-y-1">
-        <div>
-          <span>Shortcuts: </span>
-          <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+R</kbd>
-          <span> reset • </span>
-          <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Tab</kbd>
-          <span> indent • </span>
-          <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Enter</kbd>
-          <span> maintain indentation</span>
-        </div>
-        <div>
-          <span>✨ Features: Smart indentation • Smart backspace (4 spaces)</span>
-        </div>
+      {/* Keyboard shortcuts */}
+      <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
+        <span>Shortcuts: </span>
+        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+R</kbd>
+        <span> reset • </span>
+        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+A</kbd>
+        <span> select all</span>
       </div>
     </div>
   );

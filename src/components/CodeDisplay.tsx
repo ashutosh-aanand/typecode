@@ -35,7 +35,7 @@ export default function CodeDisplay({
   }, [code]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full">
       {/* Header with snippet info */}
       {(title || difficulty || category) && (
         <div className="bg-white dark:bg-gray-800 rounded-t-lg border border-gray-200 dark:border-gray-700 px-4 py-3">

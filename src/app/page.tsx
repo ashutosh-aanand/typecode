@@ -6,6 +6,7 @@ import CodeDisplay from '@/components/CodeDisplay';
 import Controls from '@/components/Controls';
 import TypingArea from '@/components/TypingArea';
 import MetricsDisplay from '@/components/MetricsDisplay';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function Home() {
   const { 
@@ -57,7 +58,7 @@ export default function Home() {
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Improve your coding muscle memory with authentic Data Structures and Algorithms snippets. 
-              Type the code exactly as shown - including spaces, brackets, and formatting. 
+              The code is shown on the left - type it exactly in the area on the right, including spaces, brackets, and formatting. 
               Your speed and accuracy will be tracked in real-time.
             </p>
           </div>
@@ -70,25 +71,32 @@ export default function Home() {
             isComplete={isComplete}
           />
 
-          {/* Code Display */}
+          {/* Code Display & Typing Area - Side by Side */}
           {currentSnippet ? (
-            <CodeDisplay
-              code={currentSnippet.code}
-              title={currentSnippet.title}
-              difficulty={currentSnippet.difficulty}
-              category={currentSnippet.category}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left: Code Display */}
+              <div className="order-1">
+                <CodeDisplay
+                  code={currentSnippet.code}
+                  title={currentSnippet.title}
+                  difficulty={currentSnippet.difficulty}
+                  category={currentSnippet.category}
+                />
+              </div>
+
+              {/* Right: Typing Area */}
+              <div className="order-2">
+                <TypingArea />
+              </div>
+            </div>
           ) : (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <LoadingSpinner size="lg" className="mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">Loading snippet...</p>
               </div>
             </div>
           )}
-
-          {/* Typing Area */}
-          <TypingArea />
 
           {/* Real-time Metrics */}
           <MetricsDisplay />

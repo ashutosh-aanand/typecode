@@ -70,7 +70,7 @@ export default function TypingArea({ disabled = false }: TypingAreaProps) {
 
   if (!currentSnippet) {
     return (
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full">
         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
           <p className="text-gray-500 dark:text-gray-400">Loading...</p>
         </div>
@@ -79,9 +79,16 @@ export default function TypingArea({ disabled = false }: TypingAreaProps) {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full">
+      {/* Typing Area Header */}
+      <div className="bg-white dark:bg-gray-800 rounded-t-lg border border-gray-200 dark:border-gray-700 px-4 py-3 mb-0">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          ⌨️ Type Here
+        </h3>
+      </div>
+
       {/* Instructions */}
-      <div className="mb-4 text-center">
+      <div className="mb-4 text-center bg-gray-50 dark:bg-gray-800/50 px-4 py-2 border-x border-gray-200 dark:border-gray-700">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {isComplete ? (
             <span className="text-green-600 dark:text-green-400 font-medium">
@@ -114,8 +121,9 @@ export default function TypingArea({ disabled = false }: TypingAreaProps) {
           className={`
             w-full h-64 p-4 
             font-mono text-sm leading-relaxed
-            border-2 rounded-lg resize-none
-            transition-colors duration-200
+            border border-gray-200 dark:border-gray-700 rounded-b-lg resize-none
+            transition-all duration-300 ease-in-out
+            transform hover:scale-[1.01] focus:scale-[1.01]
             ${isFocused 
               ? 'border-blue-500 dark:border-blue-400' 
               : 'border-gray-300 dark:border-gray-600'

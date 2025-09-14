@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# xtype - Typing Practice for Programmers
 
-## Getting Started
+A specialized typing practice platform designed for programmers to master real Java code through Data Structures and Algorithms snippets.
 
-First, run the development server:
+## 🎯 Features
 
+- **Real Java DSA Code**: Practice typing authentic algorithms including Binary Search, Sorting, Trees, and more
+- **Syntax Highlighting**: Beautiful Java code display with Prism.js
+- **Real-time Metrics**: Live WPM, accuracy, and time tracking
+- **Character Validation**: Precise character-by-character comparison
+- **Performance Ratings**: Get rated on your typing speed and accuracy
+- **Responsive Design**: Works perfectly on desktop and mobile
+- **Dark Mode**: Automatic theme switching support
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- pnpm (recommended) or npm
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd xtype
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Learn More
+## 🛠️ Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: Next.js 15.5.3 with App Router
+- **Language**: TypeScript
+- **Styling**: TailwindCSS 4.x
+- **State Management**: Zustand
+- **Syntax Highlighting**: Prism.js
+- **Build Tool**: Turbopack
+- **Package Manager**: pnpm
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📊 Available Algorithms
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app includes 10 carefully selected Java DSA algorithms:
 
-## Deploy on Vercel
+- **Searching**: Binary Search
+- **Sorting**: Bubble Sort, Quick Sort, Merge Sort
+- **Trees**: DFS Binary Tree, BFS Binary Tree
+- **Recursion**: Fibonacci (Recursive)
+- **Arrays**: Two Sum, Reverse Linked List
+- **Strings**: Valid Parentheses
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎮 How to Use
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Start**: Visit the app and a random Java algorithm will load
+2. **Type**: Click in the typing area and start typing the code exactly as shown
+3. **Track**: Watch your real-time metrics (WPM, accuracy, time)
+4. **Complete**: Finish typing to see your final results and performance rating
+5. **Practice**: Click "New Snippet" to try another algorithm
+
+## 🎯 Keyboard Shortcuts
+
+- `Ctrl+R`: Reset current session
+- `Ctrl+A`: Select all text in typing area
+
+## 📈 Performance Metrics
+
+- **WPM (Words Per Minute)**: Based on 5 characters = 1 word
+- **Accuracy**: Percentage of correctly typed characters
+- **Time**: Session duration from first keystroke to completion
+- **Ratings**: Performance ratings from Beginner to Excellent
+
+## 🏗️ Development
+
+### Scripts
+
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
+pnpm type-check   # Run TypeScript checks
+```
+
+### Project Structure
+
+```
+src/
+├── app/                 # Next.js App Router pages
+├── components/          # React components
+│   ├── CodeDisplay.tsx  # Syntax highlighted code display
+│   ├── TypingArea.tsx   # Interactive typing interface
+│   ├── MetricsDisplay.tsx # Real-time metrics dashboard
+│   └── Controls.tsx     # Snippet controls (New/Reset)
+├── store/              # Zustand state management
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+└── data/               # Static data (snippets.json)
+```
+
+## 🚀 Deployment
+
+The app is optimized for deployment on Vercel:
+
+```bash
+pnpm build  # Ensure production build works
+```
+
+Deploy to Vercel:
+- Connect your repository to Vercel
+- Vercel will automatically detect Next.js and use the correct build settings
+- The app will be available at your Vercel domain
+
+## 🎨 Design Philosophy
+
+xtype focuses on:
+- **Authenticity**: Real programming code, not random text
+- **Precision**: Exact character matching including spaces and formatting
+- **Feedback**: Immediate visual and metric feedback
+- **Simplicity**: Clean, distraction-free interface
+- **Performance**: Fast loading and smooth interactions
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Contact
+
+For questions or feedback, please open an issue on GitHub.
+
+---
+
+**xtype** - Master real Java code through typing practice. Built with ❤️ for programmers.

@@ -27,7 +27,7 @@ export const useTypingStore = create<TypingStore>()(
       loadRandomSnippet: () => {
         const snippets = snippetsData.snippets;
         const randomIndex = Math.floor(Math.random() * snippets.length);
-        const snippet = snippets[randomIndex];
+        const snippet = snippets[randomIndex] as Snippet;
         
         set({
           currentSnippet: snippet,
@@ -47,7 +47,7 @@ export const useTypingStore = create<TypingStore>()(
       // Load a specific snippet by ID
       loadSnippetById: (id: string) => {
         const snippets = snippetsData.snippets;
-        const snippet = snippets.find(s => s.id === id);
+        const snippet = snippets.find(s => s.id === id) as Snippet | undefined;
         
         if (snippet) {
           set({

@@ -44,17 +44,6 @@ export default function OverlayTypingArea({ disabled = false }: OverlayTypingAre
     return match ? match[1] : '';
   };
 
-  // Check if character should trigger auto-closing
-  const getAutoCloseChar = (char: string): string | null => {
-    const pairs: { [key: string]: string } = {
-      '(': ')',
-      '[': ']',
-      '{': '}',
-      '"': '"',
-      "'": "'"
-    };
-    return pairs[char] || null;
-  };
 
   // Handle key events with code-friendly features
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -140,34 +129,9 @@ export default function OverlayTypingArea({ disabled = false }: OverlayTypingAre
       return;
     }
 
-    // Handle Backspace for smart deletion
+    // Handle Backspace for smart indentation deletion
     if (e.key === 'Backspace') {
       const charBefore = value[cursorPos - 1];
-      const charAfter = value[cursorPos];
-      
-      // Delete matching bracket pairs
-      const pairs: { [key: string]: string } = {
-        '(': ')',
-        '[': ']',
-        '{': '}',
-        '"': '"',
-        "'": "'"
-      };
-      
-      if (charBefore && pairs[charBefore] === charAfter) {
-        e.preventDefault();
-        const newValue = 
-          value.substring(0, cursorPos - 1) + 
-          value.substring(cursorPos + 1);
-        updateUserInput(newValue);
-        
-        setTimeout(() => {
-          if (textarea) {
-            textarea.selectionStart = textarea.selectionEnd = cursorPos - 1;
-          }
-        }, 0);
-        return;
-      }
       
       // Smart indentation deletion (delete 4 spaces at once if at beginning of line)
       if (charBefore === ' ') {
@@ -191,60 +155,6 @@ export default function OverlayTypingArea({ disabled = false }: OverlayTypingAre
       }
     }
 
-    // Handle bracket auto-closing
-    const autoCloseChar = getAutoCloseChar(e.key);
-    if (autoCloseChar && e.key !== '"' && e.key !== "'") { // Handle quotes separately
-      e.preventDefault();
-      
-      const newValue = 
-        value.substring(0, cursorPos) + 
-        e.key + autoCloseChar + 
-        value.substring(cursorPos);
-      
-      updateUserInput(newValue);
-      
-      // Position cursor between the brackets
-      setTimeout(() => {
-        if (textarea) {
-          textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
-        }
-      }, 0);
-      
-      return;
-    }
-
-    // Handle quote auto-closing (toggle behavior)
-    if (e.key === '"' || e.key === "'") {
-      const charAfter = value[cursorPos];
-      
-      // If next character is the same quote, just move cursor
-      if (charAfter === e.key) {
-        e.preventDefault();
-        setTimeout(() => {
-          if (textarea) {
-            textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
-          }
-        }, 0);
-        return;
-      }
-      
-      // Otherwise, add closing quote
-      e.preventDefault();
-      const newValue = 
-        value.substring(0, cursorPos) + 
-        e.key + e.key + 
-        value.substring(cursorPos);
-      
-      updateUserInput(newValue);
-      
-      setTimeout(() => {
-        if (textarea) {
-          textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
-        }
-      }, 0);
-      
-      return;
-    }
 
     // Handle Ctrl shortcuts
     if (e.ctrlKey) {
@@ -437,12 +347,10 @@ export default function OverlayTypingArea({ disabled = false }: OverlayTypingAre
           <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Tab</kbd>
           <span> indent • </span>
           <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Enter</kbd>
-          <span> auto-indent</span>
+          <span> maintain indentation</span>
         </div>
         <div>
-          <span>✨ Auto-closing: </span>
-          <code className="text-xs">() [] {} "" ''</code>
-          <span> • Smart backspace • Smart indentation</span>
+          <span>✨ Features: Smart indentation • Smart backspace (4 spaces)</span>
         </div>
       </div>
     </div>

@@ -24,7 +24,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="py-8">
+      <header className={`
+        transition-all duration-500 ease-in-out overflow-hidden
+        ${isActive ? 'max-h-0 py-0 opacity-0' : 'max-h-20 py-8 opacity-100'}
+      `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -40,13 +43,22 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="space-y-8">
+      <main className={`
+        max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-in-out
+        ${isActive ? 'py-4' : 'py-6 sm:py-8'}
+      `}>
+        <div className={`
+          transition-all duration-300 ease-in-out
+          ${isActive ? 'space-y-4' : 'space-y-8'}
+        `}>
           {/* Live Metrics */}
           <MetricsDisplay />
 
           {/* Controls */}
-          <div className="flex justify-center">
+          <div className={`
+            flex justify-center transition-all duration-300 ease-in-out
+            ${isActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+          `}>
             <Controls
               onNewSnippet={loadRandomSnippet}
               onReset={resetSession}

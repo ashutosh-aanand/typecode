@@ -300,12 +300,12 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
       </div>
 
       {/* Enhanced Typing Area */}
-      <div className="relative min-h-[400px] bg-white dark:bg-gray-900 overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-900">
         {/* Code overlay with character-by-character coloring */}
         <div 
           className={`
             absolute inset-0 p-6 font-mono text-sm leading-relaxed
-            pointer-events-none z-10 whitespace-pre-wrap overflow-auto
+            pointer-events-none z-10 whitespace-pre-wrap
             ${isComplete ? 'bg-green-50 dark:bg-green-900/10' : ''}
           `}
         >
@@ -324,13 +324,16 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           onBlur={() => setIsFocused(false)}
           disabled={disabled || isComplete}
           className={`
-            w-full min-h-[400px] p-6 
+            w-full p-6 
             font-mono text-sm leading-relaxed
-            border-0 resize-none overflow-auto
+            border-0 resize-none overflow-hidden
             bg-transparent text-transparent caret-transparent
             focus:outline-none
             ${isComplete ? 'cursor-not-allowed' : 'cursor-text'}
           `}
+          style={{
+            height: `${Math.max(400, (currentSnippet.code.split('\n').length * 24) + 48)}px`
+          }}
           spellCheck={false}
           autoComplete="off"
           autoCorrect="off"

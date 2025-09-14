@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useTypingStore } from '@/store/typing-store';
 import CodeDisplay from '@/components/CodeDisplay';
 import Controls from '@/components/Controls';
+import TypingArea from '@/components/TypingArea';
+import MetricsDisplay from '@/components/MetricsDisplay';
 
 export default function Home() {
   const { 
@@ -55,7 +57,8 @@ export default function Home() {
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Improve your coding muscle memory with authentic Data Structures and Algorithms snippets. 
-              Type the code below to practice programming patterns and syntax.
+              Type the code exactly as shown - including spaces, brackets, and formatting. 
+              Your speed and accuracy will be tracked in real-time.
             </p>
           </div>
 
@@ -84,15 +87,11 @@ export default function Home() {
             </div>
           )}
 
-          {/* Placeholder for typing area - will be added in Phase 3 */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              <p className="text-lg mb-2">✨ Typing Area Coming Soon</p>
-              <p className="text-sm">
-                Phase 3 will add the interactive typing interface with real-time tracking
-              </p>
-            </div>
-          </div>
+          {/* Typing Area */}
+          <TypingArea />
+
+          {/* Real-time Metrics */}
+          <MetricsDisplay />
         </div>
       </main>
 

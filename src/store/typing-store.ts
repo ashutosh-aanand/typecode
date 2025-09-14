@@ -106,11 +106,16 @@ export const useTypingStore = create<TypingStore>()(
         // Check if typing is complete
         if (comparison.isComplete) {
           const endTime = Date.now();
+          
+          // Ensure consistent accuracy calculation
+          const totalCharsForAccuracy = newManualChars;
+          const correctCharsForAccuracy = Math.min(comparison.correctChars, totalCharsForAccuracy);
+          
           const metrics = calculateTypingMetrics(
             newStartTime,
             endTime,
-            newManualChars, // Use manually typed chars instead of total chars
-            comparison.correctChars,
+            totalCharsForAccuracy,
+            correctCharsForAccuracy,
             comparison.errors.length
           );
 
@@ -209,11 +214,17 @@ export const useTypingStore = create<TypingStore>()(
         }
 
         const currentTime = state.endTime || Date.now();
+        
+        // Ensure accuracy calculation uses consistent values
+        // If we're tracking manually typed chars, use that for both total and correct
+        const totalCharsForAccuracy = state.manuallyTypedChars || state.totalChars;
+        const correctCharsForAccuracy = Math.min(state.correctChars, totalCharsForAccuracy);
+        
         return calculateTypingMetrics(
           state.startTime,
           currentTime,
-          state.manuallyTypedChars || state.totalChars, // Use manually typed chars if available
-          state.correctChars,
+          totalCharsForAccuracy,
+          correctCharsForAccuracy,
           state.errors.length
         );
       },

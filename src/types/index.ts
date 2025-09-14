@@ -1,6 +1,6 @@
 // Core types for typecode application
 
-export type ProgrammingLanguage = 'java' | 'python' | 'cpp' | 'javascript' | 'typescript' | 'go' | 'rust' | 'c' | 'csharp' | 'kotlin';
+export type ProgrammingLanguage = 'java' | 'python' | 'cpp' | 'javascript';
 
 export interface Snippet {
   id: string;

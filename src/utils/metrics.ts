@@ -11,17 +11,19 @@ export const calculateTypingMetrics = (
   errorCount: number = 0
 ): TypingMetrics => {
   const timeInSeconds = (endTime - startTime) / 1000;
-  const accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0;
+  // Ensure accuracy never exceeds 100% by capping correctChars at totalChars
+  const cappedCorrectChars = Math.min(correctChars, totalChars);
+  const accuracy = totalChars > 0 ? (cappedCorrectChars / totalChars) * 100 : 0;
   
   const minutes = timeInSeconds / 60;
   
   // WPM calculation: (characters / 5) / minutes
   // Standard formula where 5 characters = 1 word
-  const wpm = minutes > 0 ? (correctChars / 5) / minutes : 0;
+  const wpm = minutes > 0 ? (cappedCorrectChars / 5) / minutes : 0;
   
   // CPM calculation: characters / minutes
   // More accurate for code typing with symbols and varied character types
-  const cpm = minutes > 0 ? correctChars / minutes : 0;
+  const cpm = minutes > 0 ? cappedCorrectChars / minutes : 0;
 
   return {
     timeInSeconds: Math.round(timeInSeconds * 100) / 100, // Round to 2 decimal places
@@ -29,7 +31,7 @@ export const calculateTypingMetrics = (
     wpm: Math.round(wpm),
     cpm: Math.round(cpm),
     totalCharacters: totalChars,
-    correctCharacters: correctChars,
+    correctCharacters: cappedCorrectChars,
     errorCount
   };
 };

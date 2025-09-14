@@ -283,24 +283,15 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-t-lg border border-gray-200 dark:border-gray-700 px-4 py-3">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
             {currentSnippet.title}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-              currentSnippet.difficulty === 'easy' 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                : currentSnippet.difficulty === 'medium'
-                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-            }`}>
-              {currentSnippet.difficulty.charAt(0).toUpperCase() + currentSnippet.difficulty.slice(1)}
-            </span>
-            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full">
-              {currentSnippet.category}
-            </span>
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <span>{currentSnippet.difficulty}</span>
+            <span>•</span>
+            <span>{currentSnippet.category}</span>
           </div>
         </div>
       </div>
@@ -313,9 +304,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
             absolute inset-0 p-4 font-mono text-sm leading-relaxed
             pointer-events-none z-10 whitespace-pre-wrap
             bg-white dark:bg-gray-900
-            border border-gray-200 dark:border-gray-700 rounded-b-lg
-            ${isFocused ? 'border-blue-500 dark:border-blue-400' : ''}
-            ${isComplete ? 'border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20' : ''}
+            ${isComplete ? 'bg-green-50 dark:bg-green-900/10' : ''}
           `}
         >
           {renderOverlayText()}
@@ -335,9 +324,9 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           className={`
             w-full h-64 p-4 
             font-mono text-sm leading-relaxed
-            border border-gray-200 dark:border-gray-700 rounded-b-lg resize-none
+            border-0 resize-none
             bg-transparent text-transparent caret-transparent
-            focus:outline-none focus:ring-0 focus:border-blue-500 dark:focus:border-blue-400
+            focus:outline-none
             ${isComplete ? 'cursor-not-allowed' : 'cursor-text'}
           `}
           spellCheck={false}
@@ -346,53 +335,18 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           autoCapitalize="off"
         />
 
-        {/* Progress indicator */}
-        <div className="absolute bottom-2 right-2 text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-sm z-20">
-          {userInput.length} / {currentSnippet.code.length}
-          {errors.length > 0 && (
-            <span className="ml-2 text-red-500">
-              • {errors.length} error{errors.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-
         {/* Focus prompt */}
         {!isFocused && !isComplete && !disabled && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 rounded-b-lg z-30">
-            <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Click here to start typing
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Completion overlay */}
-        {isComplete && (
-          <div className="absolute inset-0 flex items-center justify-center bg-green-50/90 dark:bg-green-900/20 rounded-b-lg z-30">
-            <div className="bg-white dark:bg-gray-800 px-6 py-4 rounded-lg shadow-lg border border-green-200 dark:border-green-700 text-center">
-              <div className="text-2xl mb-2">🎉</div>
-              <p className="text-lg font-semibold text-green-600 dark:text-green-400 mb-1">
-                Completed!
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Great job typing the {currentSnippet.title} algorithm
+          <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 z-30">
+            <div className="text-center">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Click to start typing
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Keyboard shortcuts */}
-      <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
-        <span>Features: Linear typing only • Smart indentation • </span>
-        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Enter</kbd>
-        <span> auto-indent • </span>
-        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Tab</kbd>
-        <span> smart-tab • </span>
-        <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+R</kbd>
-        <span> reset</span>
-      </div>
     </div>
   );
 }

@@ -16,34 +16,22 @@ export default function Controls({
   disabled = false 
 }: ControlsProps) {
   return (
-    <div className="flex flex-wrap gap-3 justify-center">
+    <div className="flex gap-4 justify-center items-center">
       <button
         onClick={onNewSnippet}
         disabled={disabled}
-        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
       >
-        New Snippet
+        new snippet
       </button>
 
       <button
         onClick={onReset}
         disabled={disabled || (!isActive && !isComplete)}
-        className="px-6 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
       >
-        Reset
+        reset
       </button>
-
-      {/* Status indicator */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <div className={`w-2 h-2 rounded-full ${
-          isComplete ? 'bg-green-500' : 
-          isActive ? 'bg-yellow-500' : 
-          'bg-gray-400'
-        }`} />
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {isComplete ? 'Complete' : isActive ? 'Typing...' : 'Ready'}
-        </span>
-      </div>
     </div>
   );
 }

@@ -1,0 +1,84 @@
+{
+  "snippets": [
+    {
+      "id": "binary-search",
+      "title": "Binary Search",
+      "difficulty": "easy",
+      "category": "searching",
+      "description": "Classic binary search algorithm for sorted arrays",
+      "code": "public int binarySearch(int[] arr, int target) {\n    int left = 0;\n    int right = arr.length - 1;\n    \n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        \n        if (arr[mid] == target) {\n            return mid;\n        } else if (arr[mid] < target) {\n            left = mid + 1;\n        } else {\n            right = mid - 1;\n        }\n    }\n    \n    return -1;\n}"
+    },
+    {
+      "id": "bubble-sort",
+      "title": "Bubble Sort",
+      "difficulty": "easy",
+      "category": "sorting",
+      "description": "Simple bubble sort implementation",
+      "code": "public void bubbleSort(int[] arr) {\n    int n = arr.length;\n    \n    for (int i = 0; i < n - 1; i++) {\n        for (int j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                int temp = arr[j];\n                arr[j] = arr[j + 1];\n                arr[j + 1] = temp;\n            }\n        }\n    }\n}"
+    },
+    {
+      "id": "quick-sort",
+      "title": "Quick Sort",
+      "difficulty": "medium",
+      "category": "sorting",
+      "description": "Efficient divide-and-conquer sorting algorithm",
+      "code": "public void quickSort(int[] arr, int low, int high) {\n    if (low < high) {\n        int pi = partition(arr, low, high);\n        \n        quickSort(arr, low, pi - 1);\n        quickSort(arr, pi + 1, high);\n    }\n}\n\nprivate int partition(int[] arr, int low, int high) {\n    int pivot = arr[high];\n    int i = low - 1;\n    \n    for (int j = low; j < high; j++) {\n        if (arr[j] < pivot) {\n            i++;\n            swap(arr, i, j);\n        }\n    }\n    \n    swap(arr, i + 1, high);\n    return i + 1;\n}\n\nprivate void swap(int[] arr, int i, int j) {\n    int temp = arr[i];\n    arr[i] = arr[j];\n    arr[j] = temp;\n}"
+    },
+    {
+      "id": "fibonacci-recursive",
+      "title": "Fibonacci (Recursive)",
+      "difficulty": "easy",
+      "category": "recursion",
+      "description": "Classic recursive fibonacci implementation",
+      "code": "public int fibonacci(int n) {\n    if (n <= 1) {\n        return n;\n    }\n    \n    return fibonacci(n - 1) + fibonacci(n - 2);\n}\n\npublic void printFibonacci(int count) {\n    for (int i = 0; i < count; i++) {\n        System.out.print(fibonacci(i) + \" \");\n    }\n}"
+    },
+    {
+      "id": "two-sum",
+      "title": "Two Sum",
+      "difficulty": "easy",
+      "category": "arrays",
+      "description": "Find two numbers that add up to target",
+      "code": "public int[] twoSum(int[] nums, int target) {\n    Map<Integer, Integer> map = new HashMap<>();\n    \n    for (int i = 0; i < nums.length; i++) {\n        int complement = target - nums[i];\n        \n        if (map.containsKey(complement)) {\n            return new int[]{map.get(complement), i};\n        }\n        \n        map.put(nums[i], i);\n    }\n    \n    return new int[]{};\n}"
+    },
+    {
+      "id": "reverse-linked-list",
+      "title": "Reverse Linked List",
+      "difficulty": "medium",
+      "category": "arrays",
+      "description": "Reverse a singly linked list iteratively",
+      "code": "class ListNode {\n    int val;\n    ListNode next;\n    \n    ListNode() {}\n    ListNode(int val) { this.val = val; }\n    ListNode(int val, ListNode next) {\n        this.val = val;\n        this.next = next;\n    }\n}\n\npublic ListNode reverseList(ListNode head) {\n    ListNode prev = null;\n    ListNode current = head;\n    \n    while (current != null) {\n        ListNode next = current.next;\n        current.next = prev;\n        prev = current;\n        current = next;\n    }\n    \n    return prev;\n}"
+    },
+    {
+      "id": "valid-parentheses",
+      "title": "Valid Parentheses",
+      "difficulty": "easy",
+      "category": "strings",
+      "description": "Check if parentheses are properly balanced",
+      "code": "public boolean isValid(String s) {\n    Stack<Character> stack = new Stack<>();\n    \n    for (char c : s.toCharArray()) {\n        if (c == '(' || c == '[' || c == '{') {\n            stack.push(c);\n        } else {\n            if (stack.isEmpty()) {\n                return false;\n            }\n            \n            char top = stack.pop();\n            if ((c == ')' && top != '(') ||\n                (c == ']' && top != '[') ||\n                (c == '}' && top != '{')) {\n                return false;\n            }\n        }\n    }\n    \n    return stack.isEmpty();\n}"
+    },
+    {
+      "id": "merge-sort",
+      "title": "Merge Sort",
+      "difficulty": "medium",
+      "category": "sorting",
+      "description": "Stable divide-and-conquer sorting algorithm",
+      "code": "public void mergeSort(int[] arr, int left, int right) {\n    if (left < right) {\n        int mid = left + (right - left) / 2;\n        \n        mergeSort(arr, left, mid);\n        mergeSort(arr, mid + 1, right);\n        merge(arr, left, mid, right);\n    }\n}\n\nprivate void merge(int[] arr, int left, int mid, int right) {\n    int[] temp = new int[right - left + 1];\n    int i = left, j = mid + 1, k = 0;\n    \n    while (i <= mid && j <= right) {\n        if (arr[i] <= arr[j]) {\n            temp[k++] = arr[i++];\n        } else {\n            temp[k++] = arr[j++];\n        }\n    }\n    \n    while (i <= mid) {\n        temp[k++] = arr[i++];\n    }\n    \n    while (j <= right) {\n        temp[k++] = arr[j++];\n    }\n    \n    System.arraycopy(temp, 0, arr, left, temp.length);\n}"
+    },
+    {
+      "id": "dfs-binary-tree",
+      "title": "DFS Binary Tree",
+      "difficulty": "medium",
+      "category": "trees",
+      "description": "Depth-first search traversal of binary tree",
+      "code": "class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    \n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) {\n        this.val = val;\n        this.left = left;\n        this.right = right;\n    }\n}\n\npublic void dfsInorder(TreeNode root) {\n    if (root != null) {\n        dfsInorder(root.left);\n        System.out.print(root.val + \" \");\n        dfsInorder(root.right);\n    }\n}\n\npublic void dfsPreorder(TreeNode root) {\n    if (root != null) {\n        System.out.print(root.val + \" \");\n        dfsPreorder(root.left);\n        dfsPreorder(root.right);\n    }\n}"
+    },
+    {
+      "id": "bfs-binary-tree",
+      "title": "BFS Binary Tree",
+      "difficulty": "medium",
+      "category": "trees",
+      "description": "Breadth-first search traversal using queue",
+      "code": "public List<List<Integer>> levelOrder(TreeNode root) {\n    List<List<Integer>> result = new ArrayList<>();\n    \n    if (root == null) {\n        return result;\n    }\n    \n    Queue<TreeNode> queue = new LinkedList<>();\n    queue.offer(root);\n    \n    while (!queue.isEmpty()) {\n        int levelSize = queue.size();\n        List<Integer> level = new ArrayList<>();\n        \n        for (int i = 0; i < levelSize; i++) {\n            TreeNode node = queue.poll();\n            level.add(node.val);\n            \n            if (node.left != null) {\n                queue.offer(node.left);\n            }\n            \n            if (node.right != null) {\n                queue.offer(node.right);\n            }\n        }\n        \n        result.add(level);\n    }\n    \n    return result;\n}"
+    }
+  ]
+}

@@ -58,6 +58,18 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
     const cursorPos = textarea.selectionStart;
     const value = textarea.value;
 
+    // Prevent cursor movement with arrow keys
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      return;
+    }
+
+    // Prevent Home, End, Page Up, Page Down
+    if (e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown') {
+      e.preventDefault();
+      return;
+    }
+
     // Handle Enter key for auto-indentation
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -154,6 +166,44 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
   };
+
+  // Handle mouse events to prevent cursor repositioning
+  const handleMouseDown = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+    // Keep focus but don't allow cursor repositioning
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
+  // Ensure cursor stays at the end of typed text
+  const handleSelectionChange = () => {
+    if (textareaRef.current && !disabled && !isComplete) {
+      const textarea = textareaRef.current;
+      const expectedPos = userInput.length;
+      
+      if (textarea.selectionStart !== expectedPos || textarea.selectionEnd !== expectedPos) {
+        textarea.selectionStart = expectedPos;
+        textarea.selectionEnd = expectedPos;
+      }
+    }
+  };
+
+  // Monitor selection changes
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const handleSelect = () => handleSelectionChange();
+    
+    textarea.addEventListener('select', handleSelect);
+    textarea.addEventListener('click', handleSelect);
+    
+    return () => {
+      textarea.removeEventListener('select', handleSelect);
+      textarea.removeEventListener('click', handleSelect);
+    };
+  }, [userInput, disabled, isComplete]);
 
   // Render character by character with different states
   const renderOverlayText = () => {
@@ -259,6 +309,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
+          onMouseDown={handleMouseDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           disabled={disabled || isComplete}
@@ -315,7 +366,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
 
       {/* Keyboard shortcuts */}
       <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
-        <span>Features: Smart indentation • </span>
+        <span>Features: Linear typing only • Smart indentation • </span>
         <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Enter</kbd>
         <span> auto-indent • </span>
         <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Tab</kbd>

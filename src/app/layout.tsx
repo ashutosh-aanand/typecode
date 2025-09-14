@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "xtype - Typing Practice for Programmers",
+  title: "typecode - Typing Practice for Programmers",
   description: "Master real Java code through Data Structures and Algorithms snippets. A specialized typing practice platform for programmers.",
 };
 

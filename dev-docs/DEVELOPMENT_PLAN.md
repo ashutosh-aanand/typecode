@@ -1,4 +1,4 @@
-# xtype Development Plan
+# typecode Development Plan
 
 ## Phase-by-Phase Implementation Guide
 
@@ -6,8 +6,8 @@
 
 #### 1.1 Initialize Next.js Project
 ```bash
-pnpx create-next-app@latest xtype --typescript --tailwind --eslint --app
-cd xtype
+pnpx create-next-app@latest typecode --typescript --tailwind --eslint --app
+cd typecode
 ```
 
 #### 1.2 Install Dependencies
@@ -25,7 +25,7 @@ pnpm add -D @types/node
 
 #### 1.3 Project Structure Setup
 ```
-xtype/
+typecode/
 ├── src/
 │   ├── app/
 │   │   ├── globals.css
@@ -238,8 +238,8 @@ pnpx vercel --prod
 ### Setup Commands
 ```bash
 # Initial setup
-pnpx create-next-app@latest xtype --typescript --tailwind --eslint --app
-cd xtype
+pnpx create-next-app@latest typecode --typescript --tailwind --eslint --app
+cd typecode
 pnpm install
 
 # Development

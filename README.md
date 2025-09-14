@@ -1,4 +1,4 @@
-# xtype - Typing Practice for Programmers
+# typecode - Typing Practice for Programmers
 
 A specialized typing practice platform designed for programmers to master real Java code through Data Structures and Algorithms snippets.
 
@@ -24,7 +24,7 @@ A specialized typing practice platform designed for programmers to master real J
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd xtype
+cd typecode
 ```
 
 2. Install dependencies:
@@ -123,7 +123,7 @@ Deploy to Vercel:
 
 ## 🎨 Design Philosophy
 
-xtype focuses on:
+typecode focuses on:
 - **Authenticity**: Real programming code, not random text
 - **Precision**: Exact character matching including spaces and formatting
 - **Feedback**: Immediate visual and metric feedback
@@ -144,4 +144,4 @@ For questions or feedback, please open an issue on GitHub.
 
 ---
 
-**xtype** - Master real Java code through typing practice. Built with ❤️ for programmers.
+**typecode** - Master real Java code through typing practice. Built with ❤️ for programmers.

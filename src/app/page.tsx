@@ -32,7 +32,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
-                xtype
+                typecode
               </h1>
               <span className="text-gray-500 dark:text-gray-400 text-sm hidden sm:inline">
                 java dsa

@@ -1,8 +1,8 @@
-# Product Requirements Document (PRD) – xtype
+# Product Requirements Document (PRD) – typecode
 
 ## 1. Overview
 
-**xtype** is a web-based typing practice app designed specifically for programmers. Unlike generic typing platforms like Monkeytype that use random words or sentences, xtype focuses on typing authentic Java code snippets covering essential Data Structures and Algorithms (DSA) concepts.
+**typecode** is a web-based typing practice app designed specifically for programmers. Unlike generic typing platforms like Monkeytype that use random words or sentences, typecode focuses on typing authentic Java code snippets covering essential Data Structures and Algorithms (DSA) concepts.
 
 The MVP will let users type popular Java DSA algorithms (like binary search, sorting, recursion), measure their typing performance, and practice coding fluency with real-world code.
 
@@ -93,4 +93,4 @@ MVP is successful if a user can:
 
 ---
 
-⚡ **xtype** is positioned as: *"A specialized typing practice platform for programmers to master real Java code through Data Structures and Algorithms snippets."*
+⚡ **typecode** is positioned as: *"A specialized typing practice platform for programmers to master real Java code through Data Structures and Algorithms snippets."*

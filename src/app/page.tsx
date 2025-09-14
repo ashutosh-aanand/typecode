@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useTypingStore } from '@/store/typing-store';
 import Controls from '@/components/Controls';
-import OverlayTypingArea from '@/components/OverlayTypingArea';
+import EnhancedTypingArea from '@/components/EnhancedTypingArea';
 import MetricsDisplay from '@/components/MetricsDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
@@ -61,10 +61,10 @@ export default function Home() {
             isComplete={isComplete}
           />
 
-          {/* Overlay Typing Area */}
+          {/* Enhanced Typing Area */}
           {currentSnippet ? (
             <div className="max-w-4xl mx-auto">
-              <OverlayTypingArea />
+              <EnhancedTypingArea />
             </div>
           ) : (
             <div className="flex items-center justify-center py-12">

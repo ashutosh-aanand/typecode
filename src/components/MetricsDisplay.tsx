@@ -53,8 +53,17 @@ export default function MetricsDisplay() {
       <div className="w-full max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <div className="text-center text-gray-500 dark:text-gray-400">
-            <p className="text-lg mb-2">📊 Metrics</p>
-            <p className="text-sm">Start typing to see your real-time performance metrics</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Practice Typing Real Java Code
+            </h2>
+            <p className="text-sm mb-4">
+              Improve your coding muscle memory with authentic Data Structures and Algorithms snippets. 
+              The code is shown on the left - type it exactly in the area on the right.
+            </p>
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <span>📊</span>
+              <span>Your speed and accuracy will be tracked here in real-time</span>
+            </div>
           </div>
         </div>
       </div>

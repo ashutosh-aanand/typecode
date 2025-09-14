@@ -51,17 +51,8 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
-          {/* Instructions */}
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-              Practice Typing Real Java Code
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Improve your coding muscle memory with authentic Data Structures and Algorithms snippets. 
-              The code is shown on the left - type it exactly in the area on the right, including spaces, brackets, and formatting. 
-              Your speed and accuracy will be tracked in real-time.
-            </p>
-          </div>
+          {/* Live Metrics */}
+          <MetricsDisplay />
 
           {/* Controls */}
           <Controls
@@ -97,9 +88,6 @@ export default function Home() {
               </div>
             </div>
           )}
-
-          {/* Real-time Metrics */}
-          <MetricsDisplay />
         </div>
       </main>
 

@@ -283,7 +283,10 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className={`
+        px-4 border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden
+        ${isActive ? 'max-h-0 py-0 opacity-0' : 'max-h-20 py-3 opacity-100'}
+      `}>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
             {currentSnippet.title}

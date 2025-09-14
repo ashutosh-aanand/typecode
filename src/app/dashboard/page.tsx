@@ -8,13 +8,62 @@ import { AnalyticsData, TypingSession } from '@/types/analytics';
 export default function Dashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [recentSessions, setRecentSessions] = useState<TypingSession[]>([]);
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'7d' | '30d' | 'all'>('7d');
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'1d' | '7d' | '30d' | '6m' | 'all'>('7d');
 
   useEffect(() => {
     const data = getAnalyticsData();
     setAnalytics(data);
     setRecentSessions(getRecentSessions(10));
   }, []);
+
+  // Filter sessions based on selected timeframe
+  const getFilteredSessions = () => {
+    if (!analytics) return [];
+    
+    const now = new Date();
+    const cutoffDate = new Date();
+    
+    switch (selectedTimeframe) {
+      case '1d':
+        cutoffDate.setDate(now.getDate() - 1);
+        break;
+      case '7d':
+        cutoffDate.setDate(now.getDate() - 7);
+        break;
+      case '30d':
+        cutoffDate.setDate(now.getDate() - 30);
+        break;
+      case '6m':
+        cutoffDate.setMonth(now.getMonth() - 6);
+        break;
+      case 'all':
+        return analytics.sessions;
+    }
+    
+    return analytics.sessions.filter(session => 
+      new Date(session.timestamp) >= cutoffDate
+    );
+  };
+
+  // Calculate filtered stats
+  const filteredSessions = getFilteredSessions();
+  const filteredStats = {
+    totalSessions: filteredSessions.length,
+    averageCpm: filteredSessions.length > 0 
+      ? filteredSessions.reduce((sum, s) => sum + s.cpm, 0) / filteredSessions.length 
+      : 0,
+    averageAccuracy: filteredSessions.length > 0 
+      ? filteredSessions.reduce((sum, s) => sum + s.accuracy, 0) / filteredSessions.length 
+      : 0,
+    totalTimeSeconds: filteredSessions.reduce((sum, s) => sum + s.timeInSeconds, 0),
+    bestCpm: filteredSessions.length > 0 
+      ? Math.max(...filteredSessions.map(s => s.cpm)) 
+      : 0,
+    bestAccuracy: filteredSessions.length > 0 
+      ? Math.max(...filteredSessions.map(s => s.accuracy)) 
+      : 0,
+    completedSessions: filteredSessions.filter(s => s.completed).length,
+  };
 
   if (!analytics) {
     return (
@@ -28,6 +77,12 @@ export default function Dashboard() {
   }
 
   const { overallStats } = analytics;
+  
+  // Use filtered stats for display, fallback to overall stats for sections that don't change
+  const displayStats = selectedTimeframe === 'all' ? overallStats : {
+    ...overallStats,
+    ...filteredStats
+  };
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -59,167 +114,147 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Link 
                 href="/" 
-                className="text-2xl font-bold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-3xl font-bold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 typecode
               </Link>
-              <span className="text-gray-400">•</span>
-              <h1 className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                Dashboard
-              </h1>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">
+                dashboard
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <select
-                value={selectedTimeframe}
-                onChange={(e) => setSelectedTimeframe(e.target.value as '7d' | '30d' | 'all')}
-                className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-              >
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="all">All time</option>
-              </select>
-              <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
-                    clearAnalyticsData();
-                    window.location.reload();
-                  }
-                }}
-                className="px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-              >
-                Clear Data
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                if (confirm('Clear all data?')) {
+                  clearAnalyticsData();
+                  window.location.reload();
+                }
+              }}
+              className="text-sm text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+              title="Clear all analytics data"
+            >
+              clear
+            </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Sessions</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {overallStats.totalSessions}
-                </p>
-              </div>
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 dark:text-blue-400 text-sm">📊</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average CPM</p>
-                <p className={`text-2xl font-bold ${getPerformanceColor(overallStats.averageCpm, 'cpm')}`}>
-                  {Math.round(overallStats.averageCpm)}
-                </p>
-              </div>
-              <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                <span className="text-green-600 dark:text-green-400 text-sm">⚡</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Accuracy</p>
-                <p className={`text-2xl font-bold ${getPerformanceColor(overallStats.averageAccuracy, 'accuracy')}`}>
-                  {overallStats.averageAccuracy.toFixed(1)}%
-                </p>
-              </div>
-              <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                <span className="text-purple-600 dark:text-purple-400 text-sm">🎯</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Time Practiced</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {formatTime(overallStats.totalTimeSeconds)}
-                </p>
-              </div>
-              <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                <span className="text-orange-600 dark:text-orange-400 text-sm">⏱️</span>
-              </div>
-            </div>
+        {/* Timeframe Selector */}
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center gap-6">
+            {(['1d', '7d', '30d', '6m', 'all'] as const).map((timeframe) => (
+              <button
+                key={timeframe}
+                onClick={() => setSelectedTimeframe(timeframe)}
+                className={`text-sm transition-colors ${
+                  selectedTimeframe === timeframe
+                    ? 'text-gray-900 dark:text-gray-100'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
+                }`}
+              >
+                {timeframe}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Overview Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              {displayStats.totalSessions}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">sessions</div>
+          </div>
+
+          <div className="text-center">
+            <div className={`text-3xl font-bold mb-1 ${getPerformanceColor(displayStats.averageCpm, 'cpm')}`}>
+              {Math.round(displayStats.averageCpm)}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">avg cpm</div>
+          </div>
+
+          <div className="text-center">
+            <div className={`text-3xl font-bold mb-1 ${getPerformanceColor(displayStats.averageAccuracy, 'accuracy')}`}>
+              {displayStats.averageAccuracy.toFixed(1)}%
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">accuracy</div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              {formatTime(displayStats.totalTimeSeconds)}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">practiced</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12">
           {/* Personal Bests */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Personal Bests
+          <div>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
+              • personal bests
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Best CPM</span>
-                <span className={`font-bold ${getPerformanceColor(overallStats.bestCpm, 'cpm')}`}>
-                  {Math.round(overallStats.bestCpm)}
+                <span className="text-gray-600 dark:text-gray-400">best cpm</span>
+                <span className={`font-mono ${getPerformanceColor(displayStats.bestCpm, 'cpm')}`}>
+                  {Math.round(displayStats.bestCpm)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Best Accuracy</span>
-                <span className={`font-bold ${getPerformanceColor(overallStats.bestAccuracy, 'accuracy')}`}>
-                  {overallStats.bestAccuracy.toFixed(1)}%
+                <span className="text-gray-600 dark:text-gray-400">best accuracy</span>
+                <span className={`font-mono ${getPerformanceColor(displayStats.bestAccuracy, 'accuracy')}`}>
+                  {displayStats.bestAccuracy.toFixed(1)}%
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Completion Rate</span>
-                <span className="font-bold text-gray-900 dark:text-gray-100">
-                  {overallStats.totalSessions > 0 
-                    ? ((overallStats.totalCompletedSessions / overallStats.totalSessions) * 100).toFixed(1)
+                <span className="text-gray-600 dark:text-gray-400">completion rate</span>
+                <span className="font-mono text-gray-900 dark:text-gray-100">
+                  {displayStats.totalSessions > 0 
+                    ? ((displayStats.completedSessions / displayStats.totalSessions) * 100).toFixed(1)
                     : 0}%
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Current Streak</span>
-                <span className="font-bold text-gray-900 dark:text-gray-100">
-                  {overallStats.currentStreak} days
+                <span className="text-gray-600 dark:text-gray-400">current streak</span>
+                <span className="font-mono text-gray-900 dark:text-gray-100">
+                  {overallStats.currentStreak}d
                 </span>
               </div>
             </div>
           </div>
 
           {/* Language Breakdown */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Language Breakdown
+          <div>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
+              • languages
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {Object.entries(overallStats.languageStats)
                 .sort(([,a], [,b]) => b.sessions - a.sessions)
                 .map(([language, stats]) => (
                   <div key={language} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
-                        {language === 'cpp' ? 'C++' : language === 'javascript' ? 'JS' : language}
+                      <span className="text-gray-900 dark:text-gray-100 font-mono">
+                        {language === 'cpp' ? 'c++' : language === 'javascript' ? 'js' : language}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {stats.sessions} sessions
+                        {stats.sessions}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {Math.round(stats.averageCpm)} CPM
+                    <div className="text-right font-mono">
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {Math.round(stats.averageCpm)}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {stats.averageAccuracy.toFixed(1)}% acc
+                        {stats.averageAccuracy.toFixed(1)}%
                       </div>
                     </div>
                   </div>
@@ -229,54 +264,44 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Sessions */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Recent Sessions
+        <div>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
+            • recent sessions
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-2 text-gray-600 dark:text-gray-400">Date</th>
-                  <th className="text-left py-2 text-gray-600 dark:text-gray-400">Language</th>
-                  <th className="text-left py-2 text-gray-600 dark:text-gray-400">Snippet</th>
-                  <th className="text-left py-2 text-gray-600 dark:text-gray-400">CPM</th>
-                  <th className="text-left py-2 text-gray-600 dark:text-gray-400">Accuracy</th>
-                  <th className="text-left py-2 text-gray-600 dark:text-gray-400">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentSessions.map((session) => (
-                  <tr key={session.id} className="border-b border-gray-100 dark:border-gray-700/50">
-                    <td className="py-3 text-gray-900 dark:text-gray-100">
+          {recentSessions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              no sessions yet
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentSessions.map((session) => (
+                <div key={session.id} className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-mono min-w-[60px]">
                       {formatDate(session.timestamp)}
-                    </td>
-                    <td className="py-3 text-gray-900 dark:text-gray-100 capitalize">
-                      {session.language === 'cpp' ? 'C++' : session.language === 'javascript' ? 'JS' : session.language}
-                    </td>
-                    <td className="py-3 text-gray-900 dark:text-gray-100">
+                    </span>
+                    <span className="text-sm text-gray-900 dark:text-gray-100 font-mono min-w-[40px]">
+                      {session.language === 'cpp' ? 'c++' : session.language === 'javascript' ? 'js' : session.language}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
                       {session.snippetTitle}
-                    </td>
-                    <td className={`py-3 font-medium ${getPerformanceColor(session.cpm, 'cpm')}`}>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`text-sm font-mono ${getPerformanceColor(session.cpm, 'cpm')}`}>
                       {Math.round(session.cpm)}
-                    </td>
-                    <td className={`py-3 font-medium ${getPerformanceColor(session.accuracy, 'accuracy')}`}>
+                    </span>
+                    <span className={`text-sm font-mono ${getPerformanceColor(session.accuracy, 'accuracy')}`}>
                       {session.accuracy.toFixed(1)}%
-                    </td>
-                    <td className="py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        session.completed 
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-400'
-                      }`}>
-                        {session.completed ? 'Completed' : 'Incomplete'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </span>
+                    <span className={`text-xs ${session.completed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {session.completed ? '✓' : '✗'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -300,13 +300,12 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
       </div>
 
       {/* Enhanced Typing Area */}
-      <div className="relative">
+      <div className="relative min-h-[400px] bg-white dark:bg-gray-900 overflow-hidden">
         {/* Code overlay with character-by-character coloring */}
         <div 
           className={`
-            absolute inset-0 p-4 font-mono text-sm leading-relaxed
-            pointer-events-none z-10 whitespace-pre-wrap
-            bg-white dark:bg-gray-900
+            absolute inset-0 p-6 font-mono text-sm leading-relaxed
+            pointer-events-none z-10 whitespace-pre-wrap overflow-auto
             ${isComplete ? 'bg-green-50 dark:bg-green-900/10' : ''}
           `}
         >
@@ -325,9 +324,9 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           onBlur={() => setIsFocused(false)}
           disabled={disabled || isComplete}
           className={`
-            w-full h-64 p-4 
+            w-full min-h-[400px] p-6 
             font-mono text-sm leading-relaxed
-            border-0 resize-none
+            border-0 resize-none overflow-auto
             bg-transparent text-transparent caret-transparent
             focus:outline-none
             ${isComplete ? 'cursor-not-allowed' : 'cursor-text'}
@@ -340,7 +339,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
 
         {/* Focus prompt */}
         {!isFocused && !isComplete && !disabled && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 z-30">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 backdrop-blur-[0.5px] z-30">
             <div className="text-center">
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Click to start typing

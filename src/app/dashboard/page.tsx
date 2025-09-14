@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { getAnalyticsData, getRecentSessions, clearAnalyticsData } from '@/utils/analytics';
 import { AnalyticsData, TypingSession } from '@/types/analytics';
+import Navbar from '@/components/Navbar';
 
 export default function Dashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -113,36 +113,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link 
-                href="/" 
-                className="text-3xl font-bold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                typecode
-              </Link>
-              <span className="text-gray-500 dark:text-gray-400 text-sm">
-                dashboard
-              </span>
-            </div>
-            <button
-              onClick={() => {
-                if (confirm('Clear all data?')) {
-                  clearAnalyticsData();
-                  window.location.reload();
-                }
-              }}
-              className="text-sm text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-              title="Clear all analytics data"
-            >
-              clear
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Timeframe Selector */}
@@ -218,7 +189,7 @@ export default function Dashboard() {
                 <span className="text-gray-600 dark:text-gray-400">completion rate</span>
                 <span className="font-mono text-gray-900 dark:text-gray-100">
                   {displayStats.totalSessions > 0 
-                    ? ((displayStats.completedSessions / displayStats.totalSessions) * 100).toFixed(1)
+                    ? ((filteredStats.completedSessions / displayStats.totalSessions) * 100).toFixed(1)
                     : 0}%
                 </span>
               </div>
@@ -302,6 +273,22 @@ export default function Dashboard() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Clear Data Button - Bottom Right */}
+        <div className="flex justify-end mt-12">
+          <button
+            onClick={() => {
+              if (confirm('Clear all analytics data? This cannot be undone.')) {
+                clearAnalyticsData();
+                window.location.reload();
+              }
+            }}
+            className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+            title="Clear all analytics data"
+          >
+            clear all data
+          </button>
         </div>
       </main>
     </div>

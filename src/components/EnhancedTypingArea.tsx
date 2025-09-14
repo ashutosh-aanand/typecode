@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useTypingStore } from '@/store/typing-store';
 
 interface EnhancedTypingAreaProps {
@@ -17,7 +17,6 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
     userInput, 
     isActive, 
     isComplete,
-    errors,
     updateUserInput,
     resetSession
   } = useTypingStore();
@@ -40,7 +39,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
     if (currentLine > 8) {
       const scrollPosition = (currentLine - 8) * lineHeight;
       
-      console.log('Auto-scrolling:', { currentLine, scrollPosition }); // Debug log
+      // Auto-scroll to keep current line in view
       
       containerRef.current.scrollTo({
         top: scrollPosition,
@@ -49,13 +48,13 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
     }
   }, [userInput, currentSnippet, isActive]);
 
-  // Get current line indentation
-  const getCurrentLineIndentation = (text: string, cursorPos: number): string => {
-    const lines = text.substring(0, cursorPos).split('\n');
-    const currentLine = lines[lines.length - 1];
-    const match = currentLine.match(/^(\s*)/);
-    return match ? match[1] : '';
-  };
+  // Get current line indentation (currently unused but kept for future features)
+  // const getCurrentLineIndentation = (text: string, cursorPos: number): string => {
+  //   const lines = text.substring(0, cursorPos).split('\n');
+  //   const currentLine = lines[lines.length - 1];
+  //   const match = currentLine.match(/^(\s*)/);
+  //   return match ? match[1] : '';
+  // };
 
   // Check what the expected character should be at current position
   const getExpectedCharAt = (position: number): string => {
@@ -233,7 +232,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
   };
 
   // Ensure cursor stays at the end of typed text
-  const handleSelectionChange = () => {
+  const handleSelectionChange = useCallback(() => {
     if (textareaRef.current && !disabled && !isComplete) {
       const textarea = textareaRef.current;
       const expectedPos = userInput.length;
@@ -243,7 +242,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
         textarea.selectionEnd = expectedPos;
       }
     }
-  };
+  }, [userInput, disabled, isComplete]);
 
   // Monitor selection changes
   useEffect(() => {
@@ -259,7 +258,7 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
       textarea.removeEventListener('select', handleSelect);
       textarea.removeEventListener('click', handleSelect);
     };
-  }, [userInput, disabled, isComplete]);
+  }, [userInput, disabled, isComplete, handleSelectionChange]);
 
   // Render character by character with different states
   const renderOverlayText = () => {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTypingStore } from '@/store/typing-store';
-import { formatTime, getPerformanceRating, getAccuracyRating } from '@/utils/metrics';
+// Removed unused imports: formatTime, getPerformanceRating, getAccuracyRating
 
 export default function MetricsDisplay() {
   const { 

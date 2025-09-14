@@ -222,9 +222,9 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           // Correct character
           className = 'text-gray-900 dark:text-gray-100 bg-green-100 dark:bg-green-900/30';
         } else {
-          // Incorrect character
-          className = 'text-white bg-red-500 dark:bg-red-600';
-          displayChar = input[index];
+          // Incorrect character - always show the expected character with red background
+          className = 'text-white bg-red-500 dark:bg-red-600 relative';
+          displayChar = char; // Show expected character, not what was typed
         }
       } else if (index === input.length) {
         // Current cursor position
@@ -241,6 +241,25 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
         return <br key={index} />;
       } else if (char === '\t') {
         displayChar = '\u00A0\u00A0\u00A0\u00A0'; // 4 non-breaking spaces
+      }
+
+      // For incorrect characters, add a tooltip showing what was actually typed
+      if (index < input.length && input[index] !== char) {
+        const typedChar = input[index];
+        const typedCharDisplay = typedChar === ' ' ? '␣' : typedChar === '\t' ? '→' : typedChar === '\n' ? '↵' : typedChar;
+        
+        return (
+          <span 
+            key={index} 
+            className={`${className} group cursor-help`}
+            title={`Expected: "${char === ' ' ? '␣' : char === '\t' ? '→' : char === '\n' ? '↵' : char}" | Typed: "${typedCharDisplay}"`}
+          >
+            {displayChar}
+            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+              Typed: {typedCharDisplay}
+            </span>
+          </span>
+        );
       }
 
       return (

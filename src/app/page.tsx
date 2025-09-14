@@ -57,7 +57,7 @@ export default function Home() {
           {/* Controls */}
           <div className={`
             flex justify-center transition-all duration-300 ease-in-out
-            ${isActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+            ${isActive ? 'opacity-60 scale-90' : 'opacity-100 scale-100'}
           `}>
             <Controls
               onNewSnippet={loadRandomSnippet}

@@ -9,6 +9,7 @@ interface EnhancedTypingAreaProps {
 
 export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingAreaProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   
   const { 
@@ -27,6 +28,26 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
       textareaRef.current.focus();
     }
   }, [currentSnippet, disabled, isComplete]);
+
+  // Auto-scroll functionality when moving to new lines
+  useEffect(() => {
+    if (!containerRef.current || !currentSnippet || !isActive) return;
+
+    const currentLine = userInput.split('\n').length;
+    const lineHeight = 24; // matches our line-height in CSS (leading-relaxed)
+    
+    // Start scrolling when we're past the first 8 lines
+    if (currentLine > 8) {
+      const scrollPosition = (currentLine - 8) * lineHeight;
+      
+      console.log('Auto-scrolling:', { currentLine, scrollPosition }); // Debug log
+      
+      containerRef.current.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [userInput, currentSnippet, isActive]);
 
   // Get current line indentation
   const getCurrentLineIndentation = (text: string, cursorPos: number): string => {
@@ -300,7 +321,10 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
       </div>
 
       {/* Enhanced Typing Area */}
-      <div className="relative bg-white dark:bg-gray-900">
+      <div 
+        ref={containerRef}
+        className="relative bg-white dark:bg-gray-900 max-h-[600px] overflow-auto scrollbar-hide"
+      >
         {/* Code overlay with character-by-character coloring */}
         <div 
           className={`
@@ -312,33 +336,38 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           {renderOverlayText()}
         </div>
 
-        {/* Hidden textarea for input capture */}
-        <textarea
-          ref={textareaRef}
-          value={userInput}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onPaste={handlePaste}
-          onMouseDown={handleMouseDown}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          disabled={disabled || isComplete}
-          className={`
-            w-full p-6 
-            font-mono text-sm leading-relaxed
-            border-0 resize-none overflow-hidden
-            bg-transparent text-transparent caret-transparent
-            focus:outline-none
-            ${isComplete ? 'cursor-not-allowed' : 'cursor-text'}
-          `}
+        {/* Content wrapper to ensure proper height for scrolling */}
+        <div 
+          className="relative"
           style={{
             height: `${Math.max(400, (currentSnippet.code.split('\n').length * 24) + 48)}px`
           }}
-          spellCheck={false}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-        />
+        >
+          {/* Hidden textarea for input capture */}
+          <textarea
+            ref={textareaRef}
+            value={userInput}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            onMouseDown={handleMouseDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            disabled={disabled || isComplete}
+            className={`
+              w-full h-full p-6 
+              font-mono text-sm leading-relaxed
+              border-0 resize-none overflow-hidden
+              bg-transparent text-transparent caret-transparent
+              focus:outline-none
+              ${isComplete ? 'cursor-not-allowed' : 'cursor-text'}
+            `}
+            spellCheck={false}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+          />
+        </div>
 
         {/* Focus prompt */}
         {!isFocused && !isComplete && !disabled && (

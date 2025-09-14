@@ -99,15 +99,15 @@ export default function Dashboard() {
 
   const getPerformanceColor = (value: number, type: 'cpm' | 'accuracy') => {
     if (type === 'cpm') {
-      if (value >= 300) return 'text-green-600 dark:text-green-400';
-      if (value >= 200) return 'text-blue-600 dark:text-blue-400';
-      if (value >= 125) return 'text-yellow-600 dark:text-yellow-400';
-      return 'text-gray-600 dark:text-gray-400';
+      if (value >= 300) return 'text-gray-700 dark:text-gray-300';
+      if (value >= 200) return 'text-gray-700 dark:text-gray-300';
+      if (value >= 125) return 'text-gray-600 dark:text-gray-400';
+      return 'text-gray-500 dark:text-gray-500';
     } else {
-      if (value >= 95) return 'text-green-600 dark:text-green-400';
-      if (value >= 90) return 'text-blue-600 dark:text-blue-400';
-      if (value >= 80) return 'text-yellow-600 dark:text-yellow-400';
-      return 'text-gray-600 dark:text-gray-400';
+      if (value >= 95) return 'text-gray-700 dark:text-gray-300';
+      if (value >= 90) return 'text-gray-700 dark:text-gray-300';
+      if (value >= 80) return 'text-gray-600 dark:text-gray-400';
+      return 'text-gray-500 dark:text-gray-500';
     }
   };
 
@@ -167,28 +167,28 @@ export default function Dashboard() {
         {/* Overview Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+            <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-1">
               {displayStats.totalSessions}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">sessions</div>
           </div>
 
           <div className="text-center">
-            <div className={`text-3xl font-bold mb-1 ${getPerformanceColor(displayStats.averageCpm, 'cpm')}`}>
+            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
               {Math.round(displayStats.averageCpm)}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">avg cpm</div>
           </div>
 
           <div className="text-center">
-            <div className={`text-3xl font-bold mb-1 ${getPerformanceColor(displayStats.averageAccuracy, 'accuracy')}`}>
+            <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-1">
               {displayStats.averageAccuracy.toFixed(1)}%
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">accuracy</div>
           </div>
 
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+            <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-1">
               {formatTime(displayStats.totalTimeSeconds)}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">practiced</div>
@@ -198,8 +198,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12">
           {/* Personal Bests */}
           <div>
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-              • personal bests
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+              personal bests
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -233,8 +233,8 @@ export default function Dashboard() {
 
           {/* Language Breakdown */}
           <div>
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-              • languages
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+              languages
             </h2>
             <div className="space-y-4">
               {Object.entries(overallStats.languageStats)
@@ -265,8 +265,8 @@ export default function Dashboard() {
 
         {/* Recent Sessions */}
         <div>
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-            • recent sessions
+          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+            recent sessions
           </h2>
           {recentSessions.length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -294,7 +294,7 @@ export default function Dashboard() {
                     <span className={`text-sm font-mono ${getPerformanceColor(session.accuracy, 'accuracy')}`}>
                       {session.accuracy.toFixed(1)}%
                     </span>
-                    <span className={`text-xs ${session.completed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <span className={`text-xs ${session.completed ? 'text-gray-600 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
                       {session.completed ? '✓' : '✗'}
                     </span>
                   </div>

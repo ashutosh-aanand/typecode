@@ -2,9 +2,8 @@
 
 import { useEffect } from 'react';
 import { useTypingStore } from '@/store/typing-store';
-import CodeDisplay from '@/components/CodeDisplay';
 import Controls from '@/components/Controls';
-import TypingArea from '@/components/TypingArea';
+import OverlayTypingArea from '@/components/OverlayTypingArea';
 import MetricsDisplay from '@/components/MetricsDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
@@ -62,23 +61,10 @@ export default function Home() {
             isComplete={isComplete}
           />
 
-          {/* Code Display & Typing Area - Side by Side */}
+          {/* Overlay Typing Area */}
           {currentSnippet ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left: Code Display */}
-              <div className="order-1">
-                <CodeDisplay
-                  code={currentSnippet.code}
-                  title={currentSnippet.title}
-                  difficulty={currentSnippet.difficulty}
-                  category={currentSnippet.category}
-                />
-              </div>
-
-              {/* Right: Typing Area */}
-              <div className="order-2">
-                <TypingArea />
-              </div>
+            <div className="max-w-4xl mx-auto">
+              <OverlayTypingArea />
             </div>
           ) : (
             <div className="flex items-center justify-center py-12">

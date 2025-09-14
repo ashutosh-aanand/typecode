@@ -58,7 +58,7 @@ export default function MetricsDisplay() {
             </h2>
             <p className="text-sm mb-4">
               Improve your coding muscle memory with authentic Data Structures and Algorithms snippets. 
-              The code is shown on the left - type it exactly in the area on the right.
+              Click on the code below and start typing - characters will light up as you type them correctly.
             </p>
             <div className="flex items-center justify-center gap-2 text-sm">
               <span>📊</span>

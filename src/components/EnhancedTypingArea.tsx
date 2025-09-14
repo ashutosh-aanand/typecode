@@ -347,6 +347,8 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
             {currentSnippet.title}
           </h3>
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <span>{currentSnippet.language}</span>
+            <span>•</span>
             <span>{currentSnippet.difficulty}</span>
             <span>•</span>
             <span>{currentSnippet.category}</span>

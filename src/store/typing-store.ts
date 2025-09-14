@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { Snippet, TypingStore } from '@/types';
-import snippetsData from '@/data/snippets.json';
+import { Snippet, TypingStore, ProgrammingLanguage } from '@/types';
+import multiLanguageSnippets from '@/data/multi-language-snippets.json';
 import { calculateTypingMetrics, compareTexts } from '@/utils/metrics';
 
 const initialState = {
   currentSnippet: null,
+  selectedLanguage: 'java' as ProgrammingLanguage,
   userInput: '',
   currentPosition: 0,
   isActive: false,
@@ -24,11 +25,18 @@ export const useTypingStore = create<TypingStore>()(
     (set, get) => ({
       ...initialState,
 
-      // Load a random snippet from the JSON data
+      // Load a random snippet from the current language
       loadRandomSnippet: () => {
-        const snippets = snippetsData.snippets;
-        const randomIndex = Math.floor(Math.random() * snippets.length);
-        const snippet = snippets[randomIndex] as Snippet;
+        const { selectedLanguage } = get();
+        const languageSnippets = multiLanguageSnippets[selectedLanguage] || [];
+        
+        if (languageSnippets.length === 0) {
+          console.warn(`No snippets available for language: ${selectedLanguage}`);
+          return;
+        }
+        
+        const randomIndex = Math.floor(Math.random() * languageSnippets.length);
+        const snippet = languageSnippets[randomIndex] as Snippet;
         
         set({
           currentSnippet: snippet,
@@ -48,8 +56,9 @@ export const useTypingStore = create<TypingStore>()(
 
       // Load a specific snippet by ID
       loadSnippetById: (id: string) => {
-        const snippets = snippetsData.snippets;
-        const snippet = snippets.find(s => s.id === id) as Snippet | undefined;
+        const { selectedLanguage } = get();
+        const languageSnippets = multiLanguageSnippets[selectedLanguage] || [];
+        const snippet = languageSnippets.find(s => s.id === id) as Snippet | undefined;
         
         if (snippet) {
           set({
@@ -67,6 +76,14 @@ export const useTypingStore = create<TypingStore>()(
             metrics: null,
           });
         }
+      },
+
+      // Set the selected programming language
+      setLanguage: (language: ProgrammingLanguage) => {
+        set({ selectedLanguage: language });
+        // Auto-load a new snippet when language changes
+        const { loadRandomSnippet } = get();
+        loadRandomSnippet();
       },
 
       // Update user input and track progress

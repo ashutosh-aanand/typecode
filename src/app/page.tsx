@@ -6,12 +6,14 @@ import Controls from '@/components/Controls';
 import EnhancedTypingArea from '@/components/EnhancedTypingArea';
 import MetricsDisplay from '@/components/MetricsDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import LanguageSelector from '@/components/LanguageSelector';
 
 export default function Home() {
   const { 
     currentSnippet, 
     isActive, 
     isComplete,
+    selectedLanguage,
     loadRandomSnippet,
     resetSession
   } = useTypingStore();
@@ -35,9 +37,10 @@ export default function Home() {
                 typecode
               </h1>
               <span className="text-gray-500 dark:text-gray-400 text-sm hidden sm:inline">
-                java dsa
+                {selectedLanguage} dsa
               </span>
             </div>
+            <LanguageSelector />
           </div>
         </div>
       </header>

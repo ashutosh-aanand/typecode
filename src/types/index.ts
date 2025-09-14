@@ -1,4 +1,6 @@
-// Core types for xtype application
+// Core types for typecode application
+
+export type ProgrammingLanguage = 'java' | 'python' | 'cpp' | 'javascript';
 
 export interface Snippet {
   id: string;
@@ -6,6 +8,7 @@ export interface Snippet {
   difficulty: 'easy' | 'medium' | 'hard';
   code: string;
   category: string;
+  language: ProgrammingLanguage;
   description?: string;
 }
 
@@ -22,6 +25,9 @@ export interface TypingMetrics {
 export interface TypingState {
   // Current snippet being typed
   currentSnippet: Snippet | null;
+  
+  // Language selection
+  selectedLanguage: ProgrammingLanguage;
   
   // User input and tracking
   userInput: string;
@@ -47,6 +53,7 @@ export interface TypingStore extends TypingState {
   // Actions
   loadRandomSnippet: () => void;
   loadSnippetById: (id: string) => void;
+  setLanguage: (language: ProgrammingLanguage) => void;
   updateUserInput: (input: string, manuallyTypedChars?: number) => void;
   startSession: () => void;
   endSession: () => void;

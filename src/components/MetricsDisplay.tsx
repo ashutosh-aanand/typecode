@@ -8,6 +8,7 @@ export default function MetricsDisplay() {
   const { 
     isActive, 
     isComplete, 
+    isPerfectCompletion,
     metrics: finalMetrics,
     calculateMetrics,
     currentSnippet
@@ -76,8 +77,16 @@ export default function MetricsDisplay() {
       
       {/* Completion message */}
       {isComplete && (
-        <div className="mt-4 text-green-600 dark:text-green-400">
-          <span className="text-sm">✓ {currentSnippet.title} completed</span>
+        <div className="mt-4">
+          {isPerfectCompletion ? (
+            <div className="text-green-600 dark:text-green-400">
+              <span className="text-sm">🎉 Perfect! {currentSnippet.title} completed flawlessly</span>
+            </div>
+          ) : (
+            <div className="text-green-600 dark:text-green-400">
+              <span className="text-sm">✓ {currentSnippet.title} completed</span>
+            </div>
+          )}
         </div>
       )}
     </div>

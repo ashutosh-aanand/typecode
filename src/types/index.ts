@@ -36,6 +36,7 @@ export interface TypingState {
   // Session state
   isActive: boolean;
   isComplete: boolean;
+  isPerfectCompletion: boolean;
   startTime: number | null;
   endTime: number | null;
   

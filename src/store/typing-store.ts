@@ -12,6 +12,7 @@ const initialState = {
   currentPosition: 0,
   isActive: false,
   isComplete: false,
+  isPerfectCompletion: false,
   startTime: null,
   endTime: null,
   correctChars: 0,
@@ -46,6 +47,7 @@ export const useTypingStore = create<TypingStore>()(
           currentPosition: 0,
           isActive: false,
           isComplete: false,
+          isPerfectCompletion: false,
           startTime: null,
           endTime: null,
           correctChars: 0,
@@ -109,6 +111,7 @@ export const useTypingStore = create<TypingStore>()(
         // Check if typing is complete
         if (comparison.isComplete) {
           const endTime = Date.now();
+          const isPerfect = comparison.errors.length === 0;
           
           // Ensure consistent accuracy calculation
           const totalCharsForAccuracy = newManualChars;
@@ -142,6 +145,7 @@ export const useTypingStore = create<TypingStore>()(
             endTime,
             isActive: false,
             isComplete: true,
+            isPerfectCompletion: isPerfect,
             correctChars: comparison.correctChars,
             totalChars: comparison.totalChars,
             manuallyTypedChars: newManualChars,
@@ -233,6 +237,7 @@ export const useTypingStore = create<TypingStore>()(
           currentPosition: 0,
           isActive: false,
           isComplete: false,
+          isPerfectCompletion: false,
           startTime: null,
           endTime: null,
           correctChars: 0,

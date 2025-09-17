@@ -1,6 +1,60 @@
 {
   "java": [
     {
+      "id": "java-add-numbers",
+      "title": "Add Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "java",
+      "description": "Simple function to add two numbers",
+      "code": "public int add(int a, int b) {\n    return a + b;\n}"
+    },
+    {
+      "id": "java-hello-world",
+      "title": "Hello World",
+      "difficulty": "beginner", 
+      "category": "basics",
+      "language": "java",
+      "description": "Classic hello world program",
+      "code": "public static void main(String[] args) {\n    System.out.println(\"Hello, World!\");\n}"
+    },
+    {
+      "id": "java-max-two",
+      "title": "Find Maximum of Two",
+      "difficulty": "beginner",
+      "category": "basics", 
+      "language": "java",
+      "description": "Find the maximum of two numbers",
+      "code": "public int max(int a, int b) {\n    if (a > b) {\n        return a;\n    } else {\n        return b;\n    }\n}"
+    },
+    {
+      "id": "java-is-even",
+      "title": "Check Even Number",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "java", 
+      "description": "Check if a number is even",
+      "code": "public boolean isEven(int num) {\n    return num % 2 == 0;\n}"
+    },
+    {
+      "id": "java-multiply",
+      "title": "Multiply Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "java",
+      "description": "Simple multiplication function",
+      "code": "public int multiply(int a, int b) {\n    return a * b;\n}"
+    },
+    {
+      "id": "java-absolute",
+      "title": "Absolute Value",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "java",
+      "description": "Get absolute value of a number",
+      "code": "public int abs(int num) {\n    if (num < 0) {\n        return -num;\n    }\n    return num;\n}"
+    },
+    {
       "id": "java-binary-search",
       "title": "Binary Search",
       "difficulty": "easy",
@@ -38,6 +92,60 @@
     }
   ],
   "python": [
+    {
+      "id": "python-add-numbers",
+      "title": "Add Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "python",
+      "description": "Simple function to add two numbers",
+      "code": "def add(a, b):\n    return a + b"
+    },
+    {
+      "id": "python-hello-world",
+      "title": "Hello World",
+      "difficulty": "beginner",
+      "category": "basics", 
+      "language": "python",
+      "description": "Classic hello world program",
+      "code": "print(\"Hello, World!\")"
+    },
+    {
+      "id": "python-max-two",
+      "title": "Find Maximum of Two",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "python", 
+      "description": "Find the maximum of two numbers",
+      "code": "def max_two(a, b):\n    if a > b:\n        return a\n    else:\n        return b"
+    },
+    {
+      "id": "python-is-even",
+      "title": "Check Even Number", 
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "python",
+      "description": "Check if a number is even",
+      "code": "def is_even(num):\n    return num % 2 == 0"
+    },
+    {
+      "id": "python-multiply",
+      "title": "Multiply Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "python",
+      "description": "Simple multiplication function",
+      "code": "def multiply(a, b):\n    return a * b"
+    },
+    {
+      "id": "python-absolute",
+      "title": "Absolute Value",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "python",
+      "description": "Get absolute value of a number",
+      "code": "def abs_value(num):\n    if num < 0:\n        return -num\n    return num"
+    },
     {
       "id": "python-binary-search",
       "title": "Binary Search",
@@ -86,6 +194,60 @@
   ],
   "cpp": [
     {
+      "id": "cpp-add-numbers",
+      "title": "Add Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "cpp",
+      "description": "Simple function to add two numbers",
+      "code": "int add(int a, int b) {\n    return a + b;\n}"
+    },
+    {
+      "id": "cpp-hello-world",
+      "title": "Hello World",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "cpp",
+      "description": "Classic hello world program",
+      "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello, World!\" << endl;\n    return 0;\n}"
+    },
+    {
+      "id": "cpp-max-two", 
+      "title": "Find Maximum of Two",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "cpp",
+      "description": "Find the maximum of two numbers",
+      "code": "int max(int a, int b) {\n    if (a > b) {\n        return a;\n    } else {\n        return b;\n    }\n}"
+    },
+    {
+      "id": "cpp-is-even",
+      "title": "Check Even Number",
+      "difficulty": "beginner", 
+      "category": "basics",
+      "language": "cpp",
+      "description": "Check if a number is even",
+      "code": "bool isEven(int num) {\n    return num % 2 == 0;\n}"
+    },
+    {
+      "id": "cpp-multiply",
+      "title": "Multiply Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "cpp",
+      "description": "Simple multiplication function",
+      "code": "int multiply(int a, int b) {\n    return a * b;\n}"
+    },
+    {
+      "id": "cpp-absolute",
+      "title": "Absolute Value",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "cpp",
+      "description": "Get absolute value of a number",
+      "code": "int abs(int num) {\n    if (num < 0) {\n        return -num;\n    }\n    return num;\n}"
+    },
+    {
       "id": "cpp-binary-search",
       "title": "Binary Search",
       "difficulty": "easy",
@@ -132,6 +294,60 @@
     }
   ],
   "javascript": [
+    {
+      "id": "js-add-numbers",
+      "title": "Add Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "javascript",
+      "description": "Simple function to add two numbers",
+      "code": "function add(a, b) {\n    return a + b;\n}"
+    },
+    {
+      "id": "js-hello-world",
+      "title": "Hello World",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "javascript", 
+      "description": "Classic hello world program",
+      "code": "console.log(\"Hello, World!\");"
+    },
+    {
+      "id": "js-max-two",
+      "title": "Find Maximum of Two",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "javascript",
+      "description": "Find the maximum of two numbers",
+      "code": "function max(a, b) {\n    if (a > b) {\n        return a;\n    } else {\n        return b;\n    }\n}"
+    },
+    {
+      "id": "js-is-even",
+      "title": "Check Even Number",
+      "difficulty": "beginner",
+      "category": "basics", 
+      "language": "javascript",
+      "description": "Check if a number is even",
+      "code": "function isEven(num) {\n    return num % 2 === 0;\n}"
+    },
+    {
+      "id": "js-multiply",
+      "title": "Multiply Two Numbers",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "javascript",
+      "description": "Simple multiplication function",
+      "code": "function multiply(a, b) {\n    return a * b;\n}"
+    },
+    {
+      "id": "js-absolute",
+      "title": "Absolute Value",
+      "difficulty": "beginner",
+      "category": "basics",
+      "language": "javascript",
+      "description": "Get absolute value of a number",
+      "code": "function abs(num) {\n    if (num < 0) {\n        return -num;\n    }\n    return num;\n}"
+    },
     {
       "id": "js-binary-search",
       "title": "Binary Search",

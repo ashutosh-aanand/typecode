@@ -1,26 +1,44 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTypingStore } from '@/store/typing-store';
 import Navbar from '@/components/Navbar';
 import Controls from '@/components/Controls';
 import EnhancedTypingArea from '@/components/EnhancedTypingArea';
 import MetricsDisplay from '@/components/MetricsDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import Confetti from '@/components/Confetti';
 
 export default function Home() {
   const { 
     currentSnippet, 
     isActive, 
     isComplete,
+    isPerfectCompletion,
     loadRandomSnippet,
     resetSession
   } = useTypingStore();
+
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Load initial snippet on mount
   useEffect(() => {
     loadRandomSnippet();
   }, [loadRandomSnippet]);
+
+  // Trigger confetti on perfect completion
+  useEffect(() => {
+    if (isComplete && isPerfectCompletion) {
+      setShowConfetti(true);
+    }
+  }, [isComplete, isPerfectCompletion]);
+
+  // Reset confetti when starting new session
+  useEffect(() => {
+    if (!isComplete) {
+      setShowConfetti(false);
+    }
+  }, [isComplete]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -67,6 +85,11 @@ export default function Home() {
         </div>
       </main>
 
+      {/* Confetti Animation for Perfect Completion */}
+      <Confetti 
+        isActive={showConfetti} 
+        onComplete={() => setShowConfetti(false)} 
+      />
     </div>
   );
 }

@@ -55,8 +55,8 @@ export const compareTexts = (userInput: string, targetText: string) => {
     }
   }
 
-  // Check if typing is complete and accurate
-  results.isComplete = userInput.length === targetText.length && results.errors.length === 0;
+  // Check if typing is complete (user has typed all characters, regardless of accuracy)
+  results.isComplete = userInput.length === targetText.length;
 
   return results;
 };

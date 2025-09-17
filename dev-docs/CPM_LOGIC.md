@@ -193,13 +193,30 @@ CPM performance ratings (defined in `src/utils/metrics.ts`):
 - **75-124 CPM**: Below Average
 - **<75 CPM**: Beginner
 
+## Completion Logic
+
+Located in: `src/utils/metrics.ts`
+
+```typescript
+// Check if typing is complete (user has typed all characters, regardless of accuracy)
+results.isComplete = userInput.length === targetText.length;
+```
+
+**Key Behavior**: The typing session completes when the user has typed the same number of characters as the target text, **regardless of accuracy**. This ensures:
+
+1. **Timer Always Stops**: No more infinite sessions when users make errors
+2. **Results Always Display**: Users see their performance even with mistakes
+3. **Fair Analytics**: All completed attempts are recorded in session history
+4. **Better UX**: Clear completion feedback regardless of typing accuracy
+
 ## Technical Notes
 
 - CPM updates in real-time every 100ms during typing
-- Final CPM is calculated when snippet is completed
+- Final CPM is calculated when snippet is completed (length match)
 - Auto-indentation detection works by comparing input vs target after newlines
 - The system handles both spaces and tabs for indentation
 - Cursor movement is restricted to maintain linear typing flow
+- Sessions complete on character count match, not perfect accuracy
 
 ## Future Considerations
 

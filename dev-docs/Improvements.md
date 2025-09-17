@@ -1,5 +1,21 @@
 # Improvements Log
 
+## 2024-12-17 | Smooth Blur Transitions | Added fade in/out animations to "Click to start typing" overlay
+
+Enhanced the user experience with polished transitions for the focus prompt overlay.
+
+### Key Changes:
+- Smooth 300ms fade in/out animations with ease-in-out timing
+- Text slides up gently while fading in for refined visual appeal
+- Dual state management for clean DOM presence and animation control
+
+### Impact:
+- ✨ **Polished Feel**: Professional smooth transitions replace instant show/hide
+- 🎯 **Better UX**: Gentle animations feel more responsive and refined
+- 🚀 **No Flickering**: Proper state management prevents jarring visual jumps
+
+---
+
 ## 2024-12-17 | Enhanced Completion Display | Larger metrics and simplified messages on test completion
 
 Improved the visual prominence of results when typing tests complete, making achievements more celebratory and easier to read.

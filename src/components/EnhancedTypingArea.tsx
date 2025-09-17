@@ -11,6 +11,10 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [showFocusPrompt, setShowFocusPrompt] = useState(false);
+  const [isPromptVisible, setIsPromptVisible] = useState(false);
+  const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoFocusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const { 
     currentSnippet, 
@@ -21,11 +25,37 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
     resetSession
   } = useTypingStore();
 
-  // Auto-focus textarea when component mounts or snippet changes
+  // Auto-focus management (handles both initial mount and snippet changes)
   useEffect(() => {
-    if (textareaRef.current && !disabled && !isComplete) {
-      textareaRef.current.focus();
+    // Clear any existing auto-focus timeout
+    if (autoFocusTimeoutRef.current) {
+      clearTimeout(autoFocusTimeoutRef.current);
     }
+
+    // Reset focus prompt when snippet changes
+    setShowFocusPrompt(false);
+    setIsPromptVisible(false);
+
+    // Auto-focus the textarea with appropriate delay
+    if (textareaRef.current && !disabled && !isComplete && currentSnippet) {
+      autoFocusTimeoutRef.current = setTimeout(() => {
+        if (textareaRef.current && !disabled && !isComplete) {
+          textareaRef.current.focus();
+          // Clear any pending focus prompt timeout
+          if (focusTimeoutRef.current) {
+            clearTimeout(focusTimeoutRef.current);
+            focusTimeoutRef.current = null;
+          }
+        }
+      }, 150); // Back to original delay
+    }
+
+    return () => {
+      if (autoFocusTimeoutRef.current) {
+        clearTimeout(autoFocusTimeoutRef.current);
+        autoFocusTimeoutRef.current = null;
+      }
+    };
   }, [currentSnippet, disabled, isComplete]);
 
   // Auto-scroll functionality when moving to new lines
@@ -47,6 +77,69 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
       });
     }
   }, [userInput, currentSnippet, isActive]);
+
+  // Handle focus/blur with delay to prevent flickering
+  useEffect(() => {
+    if (isFocused) {
+      // Clear any pending timeout and hide prompt immediately when focused
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+      // Start fade out animation
+      setIsPromptVisible(false);
+      // Remove from DOM after animation completes
+      setTimeout(() => {
+        setShowFocusPrompt(false);
+      }, 300);
+    } else {
+      // Show prompt with delay when unfocused (prevents flickering on button/link clicks)
+      focusTimeoutRef.current = setTimeout(() => {
+        setShowFocusPrompt(true);
+        // Start fade in animation after DOM update
+        setTimeout(() => {
+          setIsPromptVisible(true);
+        }, 10);
+      }, 800); // 800ms delay - enough time for navigation and button clicks
+    }
+
+    return () => {
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+    };
+  }, [isFocused]);
+
+  // Cleanup on unmount (prevents overlay showing during navigation)
+  useEffect(() => {
+    return () => {
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+      if (autoFocusTimeoutRef.current) {
+        clearTimeout(autoFocusTimeoutRef.current);
+        autoFocusTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  // Handle page visibility changes (prevents overlay during navigation)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+        setShowFocusPrompt(false);
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  }, []);
 
   // Get current line indentation (currently unused but kept for future features)
   // const getCurrentLineIndentation = (text: string, cursorPos: number): string => {
@@ -405,16 +498,22 @@ export default function EnhancedTypingArea({ disabled = false }: EnhancedTypingA
           />
         </div>
 
-        {/* Focus prompt */}
-        {!isFocused && !isComplete && !disabled && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 backdrop-blur-[0.5px] z-30">
-            <div className="text-center">
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Click to start typing
-              </p>
+          {/* Focus prompt */}
+          {showFocusPrompt && !isComplete && !disabled && (
+            <div 
+              className={`absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 backdrop-blur-[0.5px] z-30 cursor-pointer
+                         transition-all duration-300 ease-in-out
+                         ${isPromptVisible ? 'opacity-100' : 'opacity-0'}`}
+              onClick={() => textareaRef.current?.focus()}
+            >
+              <div className="text-center">
+                <p className={`text-gray-500 dark:text-gray-400 text-sm transition-all duration-300 ease-in-out
+                              ${isPromptVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                  Click to start typing
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
 
     </div>

@@ -38,7 +38,7 @@ export default function Navbar() {
                     <Link
                       key={lang}
                       href="/"
-                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors pb-1 relative"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors relative"
                     >
                       {lang === 'cpp' ? 'c++' : lang === 'javascript' ? 'js' : lang}
                     </Link>
@@ -51,7 +51,7 @@ export default function Navbar() {
                     onClick={() => !isActive && setLanguage(lang as ProgrammingLanguage)}
                     disabled={isActive}
                     className={`
-                      pb-1 transition-colors duration-200 relative
+                      transition-colors duration-200 relative
                       ${isSelected 
                         ? 'text-gray-900 dark:text-gray-100' 
                         : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
@@ -61,7 +61,7 @@ export default function Navbar() {
                   >
                     {lang === 'cpp' ? 'c++' : lang === 'javascript' ? 'js' : lang}
                     {isSelected && (
-                      <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300 dark:bg-gray-600"></div>
+                      <div className="absolute -bottom-1 left-0 right-0 h-px bg-gray-300 dark:bg-gray-600"></div>
                     )}
                   </button>
                 );
@@ -70,14 +70,14 @@ export default function Navbar() {
           </div>
           
           {isDashboard ? (
-            <span className="text-sm text-gray-900 dark:text-gray-100 pb-1 relative">
+            <span className="text-sm text-gray-900 dark:text-gray-100 relative">
               dashboard
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300 dark:bg-gray-600"></div>
+              <div className="absolute -bottom-1 left-0 right-0 h-px bg-gray-300 dark:bg-gray-600"></div>
             </span>
           ) : (
             <Link 
               href="/dashboard"
-              className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors pb-1 relative"
+              className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors relative"
             >
               dashboard
             </Link>

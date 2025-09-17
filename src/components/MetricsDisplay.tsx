@@ -58,7 +58,9 @@ export default function MetricsDisplay() {
   return (
     <div className="text-center py-4">
       {/* Simple metrics row */}
-      <div className="flex justify-center items-center gap-8 text-lg">
+      <div className={`flex justify-center items-center transition-all duration-300 ${
+        isComplete ? 'text-2xl md:text-3xl gap-12' : 'text-lg gap-8'
+      }`}>
         <div className="text-gray-600 dark:text-gray-400">
           <span className="font-mono">{Math.floor(displayMetrics.timeInSeconds || 0)}s</span>
         </div>
@@ -77,14 +79,14 @@ export default function MetricsDisplay() {
       
       {/* Completion message */}
       {isComplete && (
-        <div className="mt-4">
+        <div className="mt-6">
           {isPerfectCompletion ? (
             <div className="text-green-600 dark:text-green-400">
-              <span className="text-sm">🎉 Perfect! {currentSnippet.title} completed flawlessly</span>
+              <span className="text-lg font-medium">🎉 Perfect!</span>
             </div>
           ) : (
             <div className="text-green-600 dark:text-green-400">
-              <span className="text-sm">✓ {currentSnippet.title} completed</span>
+              <span className="text-lg font-medium">✓ Completed</span>
             </div>
           )}
         </div>

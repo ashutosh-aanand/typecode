@@ -23,15 +23,61 @@ export const getSupabase = () => {
   return supabaseInstance;
 };
 
-// For backward compatibility - only create if configured
-export const supabase = (() => {
-  try {
-    return getSupabase();
-  } catch {
-    // Return a mock client for build time
-    return createClient('https://placeholder.supabase.co', 'placeholder-key');
+// For backward compatibility - lazy initialization
+export const supabase = {
+  auth: {
+    getSession: async () => {
+      try {
+        const client = getSupabase();
+        return await client.auth.getSession();
+      } catch {
+        return { data: { session: null }, error: null };
+      }
+    },
+    onAuthStateChange: (callback: any) => {
+      try {
+        const client = getSupabase();
+        return client.auth.onAuthStateChange(callback);
+      } catch {
+        return { data: { subscription: { unsubscribe: () => {} } } };
+      }
+    },
+    signInWithOAuth: async (options: any) => {
+      try {
+        const client = getSupabase();
+        return await client.auth.signInWithOAuth(options);
+      } catch (error) {
+        console.error('OAuth sign-in failed:', error);
+        return { data: null, error };
+      }
+    },
+    signOut: async () => {
+      try {
+        const client = getSupabase();
+        return await client.auth.signOut();
+      } catch (error) {
+        console.error('Sign out failed:', error);
+        return { error };
+      }
+    }
+  },
+  from: (table: string) => {
+    try {
+      const client = getSupabase();
+      return client.from(table);
+    } catch (error) {
+      console.error('Database operation failed:', error);
+      // Return a mock that throws on actual operations
+      return {
+        insert: () => Promise.reject(new Error('Supabase not configured')),
+        select: () => Promise.reject(new Error('Supabase not configured')),
+        eq: () => Promise.reject(new Error('Supabase not configured')),
+        order: () => Promise.reject(new Error('Supabase not configured')),
+        limit: () => Promise.reject(new Error('Supabase not configured'))
+      };
+    }
   }
-})();
+};
 
 // Database types
 export type TypingSession = {

@@ -7,8 +7,11 @@ import { User } from '@supabase/supabase-js';
 export default function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     if (!isSupabaseConfigured()) {
       setLoading(false);
       return;
@@ -42,6 +45,11 @@ export default function AuthButton() {
   const signOut = async () => {
     await supabase.auth.signOut();
   };
+
+  // Don't render anything until mounted (prevents hydration mismatch)
+  if (!mounted) {
+    return null;
+  }
 
   // Don't show anything if Supabase is not configured
   if (!isSupabaseConfigured()) {

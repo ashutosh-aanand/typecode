@@ -4,6 +4,7 @@ import { Snippet, TypingStore, ProgrammingLanguage } from '@/types';
 import multiLanguageSnippets from '@/data/multi-language-snippets.json';
 import { calculateTypingMetrics, compareTexts } from '@/utils/metrics';
 import { addTypingSession } from '@/utils/analytics';
+import { DatabaseService } from '@/lib/database';
 
 const initialState = {
   currentSnippet: null,
@@ -21,6 +22,43 @@ const initialState = {
   errors: [],
   metrics: null,
   restartCount: 0,
+};
+
+// Helper function to save session to Supabase
+const saveSessionToSupabase = async (
+  language: string,
+  snippetTitle: string,
+  snippetId: string,
+  metrics: {
+    cpm: number;
+    wpm: number;
+    accuracy: number;
+    timeInSeconds: number;
+    totalCharacters: number;
+    correctCharacters: number;
+    errorCount: number;
+  },
+  completed: boolean
+) => {
+  try {
+    await DatabaseService.saveSession({
+      language,
+      snippet_title: snippetTitle,
+      snippet_id: snippetId,
+      cpm: Math.round(metrics.cpm),
+      wpm: Math.round(metrics.wpm),
+      accuracy: parseFloat(metrics.accuracy.toFixed(2)),
+      time_in_seconds: Math.round(metrics.timeInSeconds),
+      total_characters: metrics.totalCharacters,
+      correct_characters: metrics.correctCharacters,
+      error_count: metrics.errorCount,
+      completed
+    });
+    console.log('✅ Session saved to Supabase successfully');
+  } catch (error) {
+    console.log('⚠️ Failed to save to Supabase, keeping localStorage fallback:', error);
+    // localStorage fallback is already handled by addTypingSession
+  }
 };
 
 export const useTypingStore = create<TypingStore>()(
@@ -127,6 +165,7 @@ export const useTypingStore = create<TypingStore>()(
 
           // Save analytics data
           if (currentSnippet) {
+            // Save to localStorage (existing functionality)
             addTypingSession(
               currentSnippet.language,
               currentSnippet.id,
@@ -136,6 +175,15 @@ export const useTypingStore = create<TypingStore>()(
               metrics,
               true, // completed
               state.restartCount
+            );
+
+            // Save to Supabase (new functionality)
+            saveSessionToSupabase(
+              currentSnippet.language,
+              currentSnippet.title,
+              currentSnippet.id,
+              metrics,
+              true
             );
           }
 
@@ -220,6 +268,7 @@ export const useTypingStore = create<TypingStore>()(
             state.errors.length
           );
           
+          // Save to localStorage (existing functionality)
           addTypingSession(
             state.currentSnippet.language,
             state.currentSnippet.id,
@@ -229,6 +278,15 @@ export const useTypingStore = create<TypingStore>()(
             metrics,
             false, // not completed
             state.restartCount
+          );
+
+          // Save to Supabase (new functionality)
+          saveSessionToSupabase(
+            state.currentSnippet.language,
+            state.currentSnippet.title,
+            state.currentSnippet.id,
+            metrics,
+            false
           );
         }
 

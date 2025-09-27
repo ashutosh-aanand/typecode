@@ -34,6 +34,14 @@ export const supabase = {
         return { data: { session: null }, error: null };
       }
     },
+    getUser: async () => {
+      try {
+        const client = getSupabase();
+        return await client.auth.getUser();
+      } catch {
+        return { data: { user: null }, error: null };
+      }
+    },
     onAuthStateChange: (callback: any) => {
       try {
         const client = getSupabase();

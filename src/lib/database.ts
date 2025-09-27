@@ -1,14 +1,30 @@
-import { supabase, TypingSession, isSupabaseConfigured } from './supabase';
+import { getSupabase, TypingSession, isSupabaseConfigured } from './supabase';
 
 export class DatabaseService {
+  // Helper method to check if user is authenticated
+  private static async isUserAuthenticated(): Promise<boolean> {
+    if (!isSupabaseConfigured()) {
+      return false;
+    }
+    
+    try {
+      const supabase = getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
+      return !!user;
+    } catch {
+      return false;
+    }
+  }
   // Save typing session
   static async saveSession(sessionData: Omit<TypingSession, 'id' | 'created_at' | 'user_id'>) {
-    if (!isSupabaseConfigured()) {
-      throw new Error('Supabase not configured');
+    if (!(await this.isUserAuthenticated())) {
+      throw new Error('User not authenticated or Supabase not configured');
     }
 
+    const supabase = getSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     
+    // We already checked authentication, but TypeScript doesn't know that
     if (!user) {
       throw new Error('User not authenticated');
     }
@@ -28,13 +44,17 @@ export class DatabaseService {
 
   // Get user sessions
   static async getUserSessions(limit = 50) {
-    if (!isSupabaseConfigured()) {
+    if (!(await this.isUserAuthenticated())) {
       return [];
     }
 
+    const supabase = getSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) return [];
+    // We already checked authentication, but TypeScript doesn't know that
+    if (!user) {
+      return [];
+    }
 
     const { data, error } = await supabase
       .from('typing_sessions')
@@ -49,6 +69,21 @@ export class DatabaseService {
 
   // Get analytics data
   static async getAnalytics() {
+    if (!(await this.isUserAuthenticated())) {
+      // Return empty analytics for unauthenticated users
+      return {
+        totalSessions: 0,
+        averageCpm: 0,
+        averageAccuracy: 0,
+        bestCpm: 0,
+        bestAccuracy: 0,
+        totalTimeSeconds: 0,
+        completedSessions: 0,
+        currentStreak: 0,
+        languageStats: {}
+      };
+    }
+
     const sessions = await this.getUserSessions(1000); // Get more for analytics
     
     if (sessions.length === 0) {
@@ -149,6 +184,10 @@ export class DatabaseService {
 
   // Get recent sessions for dashboard
   static async getRecentSessions(limit = 10) {
+    if (!(await this.isUserAuthenticated())) {
+      return [];
+    }
+    
     return this.getUserSessions(limit);
   }
 }

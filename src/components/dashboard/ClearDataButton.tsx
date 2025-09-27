@@ -2,10 +2,22 @@
 
 import { clearAnalyticsData } from '@/utils/analytics';
 
-export default function ClearDataButton() {
+interface ClearDataButtonProps {
+  usingSupabase?: boolean;
+}
+
+export default function ClearDataButton({ usingSupabase = false }: ClearDataButtonProps) {
   const handleClearData = () => {
-    if (confirm('Clear all analytics data? This cannot be undone.')) {
+    const dataSource = usingSupabase ? 'cloud and local' : 'local';
+    const message = `Clear all ${dataSource} analytics data? This cannot be undone.`;
+    
+    if (confirm(message)) {
       clearAnalyticsData();
+      
+      if (usingSupabase) {
+        alert('Note: Cloud data clearing requires manual deletion in Supabase dashboard. Local data has been cleared.');
+      }
+      
       window.location.reload();
     }
   };

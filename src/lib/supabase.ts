@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient, Provider } from '@supabase/supabase-js'
 
 let supabaseInstance: SupabaseClient | null = null;
 
@@ -42,7 +42,7 @@ export const supabase = {
         return { data: { user: null }, error: null };
       }
     },
-    onAuthStateChange: (callback: any) => {
+    onAuthStateChange: (callback: (event: string, session: unknown) => void) => {
       try {
         const client = getSupabase();
         return client.auth.onAuthStateChange(callback);
@@ -50,7 +50,7 @@ export const supabase = {
         return { data: { subscription: { unsubscribe: () => {} } } };
       }
     },
-    signInWithOAuth: async (options: any) => {
+    signInWithOAuth: async (options: { provider: Provider; options?: { redirectTo?: string } }) => {
       try {
         const client = getSupabase();
         return await client.auth.signInWithOAuth(options);
@@ -75,14 +75,17 @@ export const supabase = {
       return client.from(table);
     } catch (error) {
       console.error('Database operation failed:', error);
-      // Return a mock that throws on actual operations
-      return {
-        insert: () => Promise.reject(new Error('Supabase not configured')),
-        select: () => Promise.reject(new Error('Supabase not configured')),
-        eq: () => Promise.reject(new Error('Supabase not configured')),
-        order: () => Promise.reject(new Error('Supabase not configured')),
-        limit: () => Promise.reject(new Error('Supabase not configured'))
+      // Return a chainable mock that throws on actual operations
+      const mockChain = {
+        insert: () => mockChain,
+        select: () => mockChain,
+        eq: () => mockChain,
+        order: () => mockChain,
+        limit: () => mockChain,
+        single: () => Promise.reject(new Error('Supabase not configured')),
+        then: () => Promise.reject(new Error('Supabase not configured'))
       };
+      return mockChain;
     }
   }
 };

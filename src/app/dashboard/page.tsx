@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { getAnalyticsData, getRecentSessions } from '@/utils/analytics';
 import { AnalyticsData, TypingSession } from '@/types/analytics';
+import { DatabaseService } from '@/lib/database';
+import { isSupabaseConfigured, TypingSession as SupabaseSession, supabase } from '@/lib/supabase';
 import Navbar from '@/components/common/Navbar';
 import TimeframeSelector from '@/components/dashboard/TimeframeSelector';
 import StatsOverview from '@/components/dashboard/StatsOverview';
@@ -15,11 +17,107 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [recentSessions, setRecentSessions] = useState<TypingSession[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] = useState<'1d' | '7d' | '30d' | '6m' | 'all'>('7d');
+  const [loading, setLoading] = useState(true);
+  const [usingSupabase, setUsingSupabase] = useState(false);
 
   useEffect(() => {
-    const data = getAnalyticsData();
-    setAnalytics(data);
-    setRecentSessions(getRecentSessions(10));
+    const loadAnalytics = async () => {
+      try {
+        // Check if Supabase is configured and user is authenticated
+        if (isSupabaseConfigured()) {
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (user) {
+            console.log('📊 Loading analytics from Supabase for authenticated user...');
+            const supabaseAnalytics = await DatabaseService.getAnalytics();
+            const supabaseRecentSessions = await DatabaseService.getRecentSessions(10);
+          
+          // Convert Supabase language stats to match analytics format
+          const convertedLanguageStats: Record<string, {
+            sessions: number;
+            averageCpm: number;
+            averageAccuracy: number;
+            bestCpm: number;
+            totalTimeSeconds: number;
+          }> = {};
+
+          Object.entries(supabaseAnalytics.languageStats).forEach(([language, stats]) => {
+            convertedLanguageStats[language] = {
+              sessions: stats.sessions,
+              averageCpm: stats.averageCpm,
+              averageAccuracy: stats.averageAccuracy,
+              bestCpm: stats.averageCpm, // Use average as best for now
+              totalTimeSeconds: 0 // Not available from Supabase yet
+            };
+          });
+
+          // Convert Supabase data to match our analytics format
+          const convertedAnalytics: AnalyticsData = {
+            sessions: [], // We'll use the converted sessions
+            dailyStats: {}, // Not implemented yet
+            overallStats: {
+              totalSessions: supabaseAnalytics.totalSessions,
+              totalTimeSeconds: supabaseAnalytics.totalTimeSeconds,
+              averageCpm: supabaseAnalytics.averageCpm,
+              averageAccuracy: supabaseAnalytics.averageAccuracy,
+              bestCpm: supabaseAnalytics.bestCpm,
+              bestAccuracy: supabaseAnalytics.bestAccuracy,
+              favoriteLanguage: 'java', // Default for now
+              totalCompletedSessions: supabaseAnalytics.completedSessions,
+              currentStreak: supabaseAnalytics.currentStreak,
+              longestStreak: supabaseAnalytics.currentStreak, // Use current as longest for now
+              lastSessionDate: new Date().toISOString().split('T')[0], // Today as default
+              languageStats: convertedLanguageStats,
+              difficultyStats: {} // Not implemented yet
+            },
+            lastUpdated: Date.now()
+          };
+
+          // Convert Supabase sessions to analytics format
+          const convertedSessions = supabaseRecentSessions.map((session: SupabaseSession) => ({
+            id: session.id,
+            timestamp: new Date(session.created_at).getTime(),
+            language: session.language,
+            snippetTitle: session.snippet_title,
+            snippetId: session.snippet_id || '',
+            cpm: session.cpm,
+            wpm: session.wpm,
+            accuracy: session.accuracy,
+            timeInSeconds: session.time_in_seconds,
+            totalCharacters: session.total_characters,
+            correctCharacters: session.correct_characters,
+            errorCount: session.error_count,
+            completed: session.completed,
+            difficulty: 'medium' as const, // Default since not stored in DB
+            category: 'algorithm' as const, // Default since not stored in DB
+            restarts: 0 // Default since not stored in DB
+          }));
+
+            setAnalytics(convertedAnalytics);
+            setRecentSessions(convertedSessions);
+            setUsingSupabase(true);
+            console.log('✅ Successfully loaded analytics from Supabase');
+          } else {
+            console.log('👤 User not authenticated, using localStorage');
+            throw new Error('User not authenticated');
+          }
+        } else {
+          console.log('⚙️ Supabase not configured, using localStorage');
+          throw new Error('Supabase not configured');
+        }
+      } catch (error) {
+        console.log('⚠️ Supabase unavailable, falling back to localStorage:', error);
+        // Fallback to localStorage
+        const localData = getAnalyticsData();
+        setAnalytics(localData);
+        setRecentSessions(getRecentSessions(10));
+        setUsingSupabase(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAnalytics();
   }, []);
 
   // Filter sessions based on selected timeframe
@@ -71,12 +169,14 @@ export default function Dashboard() {
     completedSessions: filteredSessions.filter(s => s.completed).length,
   };
 
-  if (!analytics) {
+  if (loading || !analytics) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-500 dark:text-gray-400">Loading analytics...</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            {usingSupabase ? 'Loading analytics from cloud...' : 'Loading analytics...'}
+          </p>
         </div>
       </div>
     );
@@ -100,6 +200,20 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Data Source Indicator */}
+        <div className="flex justify-center mb-4">
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${
+            usingSupabase 
+              ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+              : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+          }`}>
+            <div className={`w-2 h-2 rounded-full ${
+              usingSupabase ? 'bg-green-500' : 'bg-yellow-500'
+            }`}></div>
+            {usingSupabase ? 'Cloud Data - Synced across devices' : 'Local Data - Sign in for cloud sync'}
+          </div>
+        </div>
+
         <TimeframeSelector 
           selectedTimeframe={selectedTimeframe}
           onTimeframeChange={setSelectedTimeframe}
@@ -127,7 +241,7 @@ export default function Dashboard() {
 
         <RecentSessions sessions={recentSessions} />
 
-        <ClearDataButton />
+        <ClearDataButton usingSupabase={usingSupabase} />
       </main>
     </div>
   );

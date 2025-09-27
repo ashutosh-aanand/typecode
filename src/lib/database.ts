@@ -193,6 +193,8 @@ export class DatabaseService {
 
   // Clear all user data from Supabase
   static async clearAllUserData() {
+    console.log('🗑️ Starting cloud data deletion...');
+    
     if (!(await this.isUserAuthenticated())) {
       throw new Error('User not authenticated or Supabase not configured');
     }
@@ -205,14 +207,20 @@ export class DatabaseService {
       throw new Error('User not authenticated');
     }
 
-    const { error } = await supabase
+    console.log(`🗑️ Deleting all sessions for user: ${user.id}`);
+
+    const { data, error } = await supabase
       .from('typing_sessions')
       .delete()
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase deletion error:', error);
+      throw error;
+    }
     
-    console.log('✅ All user data cleared from Supabase');
-    return true;
+    console.log('✅ All user data cleared from Supabase. Deleted rows:', data?.length || 0);
+    return { deletedCount: data?.length || 0 };
   }
 }

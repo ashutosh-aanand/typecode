@@ -1,9 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAnalyticsData, getRecentSessions, clearAnalyticsData } from '@/utils/analytics';
+import { getAnalyticsData, getRecentSessions } from '@/utils/analytics';
 import { AnalyticsData, TypingSession } from '@/types/analytics';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/common/Navbar';
+import TimeframeSelector from '@/components/dashboard/TimeframeSelector';
+import StatsOverview from '@/components/dashboard/StatsOverview';
+import PersonalBests from '@/components/dashboard/PersonalBests';
+import LanguageBreakdown from '@/components/dashboard/LanguageBreakdown';
+import RecentSessions from '@/components/dashboard/RecentSessions';
+import ClearDataButton from '@/components/dashboard/ClearDataButton';
 
 export default function Dashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -84,212 +90,44 @@ export default function Dashboard() {
     ...filteredStats
   };
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m`;
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString();
-  };
-
-  const getPerformanceColor = (value: number, type: 'cpm' | 'accuracy') => {
-    if (type === 'cpm') {
-      if (value >= 300) return 'text-gray-700 dark:text-gray-300';
-      if (value >= 200) return 'text-gray-700 dark:text-gray-300';
-      if (value >= 125) return 'text-gray-600 dark:text-gray-400';
-      return 'text-gray-500 dark:text-gray-500';
-    } else {
-      if (value >= 95) return 'text-gray-700 dark:text-gray-300';
-      if (value >= 90) return 'text-gray-700 dark:text-gray-300';
-      if (value >= 80) return 'text-gray-600 dark:text-gray-400';
-      return 'text-gray-500 dark:text-gray-500';
-    }
-  };
+  // Calculate completion rate
+  const completionRate = displayStats.totalSessions > 0 
+    ? (filteredStats.completedSessions / displayStats.totalSessions) * 100
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Timeframe Selector */}
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-6">
-            {(['1d', '7d', '30d', '6m', 'all'] as const).map((timeframe) => (
-              <button
-                key={timeframe}
-                onClick={() => setSelectedTimeframe(timeframe)}
-                className={`text-sm transition-colors ${
-                  selectedTimeframe === timeframe
-                    ? 'text-gray-900 dark:text-gray-100'
-                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
-                }`}
-              >
-                {timeframe}
-              </button>
-            ))}
-          </div>
-        </div>
+        <TimeframeSelector 
+          selectedTimeframe={selectedTimeframe}
+          onTimeframeChange={setSelectedTimeframe}
+        />
 
-        {/* Overview Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-1">
-              {displayStats.totalSessions}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">sessions</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-              {Math.round(displayStats.averageCpm)}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">avg cpm</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-1">
-              {displayStats.averageAccuracy.toFixed(1)}%
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">accuracy</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-600 dark:text-gray-400 mb-1">
-              {formatTime(displayStats.totalTimeSeconds)}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">practiced</div>
-          </div>
-        </div>
+        <StatsOverview 
+          totalSessions={displayStats.totalSessions}
+          averageCpm={displayStats.averageCpm}
+          averageAccuracy={displayStats.averageAccuracy}
+          totalTimeSeconds={displayStats.totalTimeSeconds}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12">
-          {/* Personal Bests */}
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-              personal bests
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">best cpm</span>
-                <span className={`font-mono ${getPerformanceColor(displayStats.bestCpm, 'cpm')}`}>
-                  {Math.round(displayStats.bestCpm)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">best accuracy</span>
-                <span className={`font-mono ${getPerformanceColor(displayStats.bestAccuracy, 'accuracy')}`}>
-                  {displayStats.bestAccuracy.toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">completion rate</span>
-                <span className="font-mono text-gray-900 dark:text-gray-100">
-                  {displayStats.totalSessions > 0 
-                    ? ((filteredStats.completedSessions / displayStats.totalSessions) * 100).toFixed(1)
-                    : 0}%
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">current streak</span>
-                <span className="font-mono text-gray-900 dark:text-gray-100">
-                  {overallStats.currentStreak}d
-                </span>
-              </div>
-            </div>
-          </div>
+          <PersonalBests 
+            bestCpm={displayStats.bestCpm}
+            bestAccuracy={displayStats.bestAccuracy}
+            completionRate={completionRate}
+            currentStreak={overallStats.currentStreak}
+          />
 
-          {/* Language Breakdown */}
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-              languages
-            </h2>
-            <div className="space-y-4">
-              {Object.entries(overallStats.languageStats)
-                .sort(([,a], [,b]) => b.sessions - a.sessions)
-                .map(([language, stats]) => (
-                  <div key={language} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-gray-900 dark:text-gray-100 font-mono">
-                        {language === 'cpp' ? 'c++' : language === 'javascript' ? 'js' : language}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {stats.sessions}
-                      </span>
-                    </div>
-                    <div className="text-right font-mono">
-                      <div className="text-sm text-gray-900 dark:text-gray-100">
-                        {Math.round(stats.averageCpm)}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {stats.averageAccuracy.toFixed(1)}%
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
+          <LanguageBreakdown 
+            languageStats={overallStats.languageStats}
+          />
         </div>
 
-        {/* Recent Sessions */}
-        <div>
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-            recent sessions
-          </h2>
-          {recentSessions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              no sessions yet
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentSessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-mono min-w-[60px]">
-                      {formatDate(session.timestamp)}
-                    </span>
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-mono min-w-[40px]">
-                      {session.language === 'cpp' ? 'c++' : session.language === 'javascript' ? 'js' : session.language}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
-                      {session.snippetTitle}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`text-sm font-mono ${getPerformanceColor(session.cpm, 'cpm')}`}>
-                      {Math.round(session.cpm)}
-                    </span>
-                    <span className={`text-sm font-mono ${getPerformanceColor(session.accuracy, 'accuracy')}`}>
-                      {session.accuracy.toFixed(1)}%
-                    </span>
-                    <span className={`text-xs ${session.completed ? 'text-gray-600 dark:text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
-                      {session.completed ? '✓' : '✗'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <RecentSessions sessions={recentSessions} />
 
-        {/* Clear Data Button - Bottom Right */}
-        <div className="flex justify-end mt-12">
-          <button
-            onClick={() => {
-              if (confirm('Clear all analytics data? This cannot be undone.')) {
-                clearAnalyticsData();
-                window.location.reload();
-              }
-            }}
-            className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-            title="Clear all analytics data"
-          >
-            clear all data
-          </button>
-        </div>
+        <ClearDataButton />
       </main>
     </div>
   );

@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useTypingStore } from '@/store/typing-store';
-import Navbar from '@/components/Navbar';
-import Controls from '@/components/Controls';
-import EnhancedTypingArea from '@/components/EnhancedTypingArea';
-import MetricsDisplay from '@/components/MetricsDisplay';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import Confetti from '@/components/Confetti';
+import Navbar from '@/components/common/Navbar';
+import Controls from '@/components/typing/Controls';
+import EnhancedTypingArea from '@/components/typing/EnhancedTypingArea';
+import MetricsDisplay from '@/components/typing/MetricsDisplay';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import Confetti from '@/components/typing/Confetti';
 
 export default function Home() {
   const { 

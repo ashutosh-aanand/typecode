@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTypingStore } from '@/store/typing-store';
 import { ProgrammingLanguage } from '@/types';
+import AuthButton from './AuthButton';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -69,19 +70,22 @@ export default function Navbar() {
             </div>
           </div>
           
-          {isDashboard ? (
-            <span className="text-sm text-gray-900 dark:text-gray-100 relative">
-              dashboard
-              <div className="absolute -bottom-1 left-0 right-0 h-px bg-gray-300 dark:bg-gray-600"></div>
-            </span>
-          ) : (
-            <Link 
-              href="/dashboard"
-              className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors relative"
-            >
-              dashboard
-            </Link>
-          )}
+          <div className="flex items-center gap-4">
+            {isDashboard ? (
+              <span className="text-sm text-gray-900 dark:text-gray-100 relative">
+                dashboard
+                <div className="absolute -bottom-1 left-0 right-0 h-px bg-gray-300 dark:bg-gray-600"></div>
+              </span>
+            ) : (
+              <Link 
+                href="/dashboard"
+                className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors relative"
+              >
+                dashboard
+              </Link>
+            )}
+            <AuthButton />
+          </div>
         </div>
       </div>
     </header>

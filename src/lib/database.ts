@@ -190,4 +190,29 @@ export class DatabaseService {
     
     return this.getUserSessions(limit);
   }
+
+  // Clear all user data from Supabase
+  static async clearAllUserData() {
+    if (!(await this.isUserAuthenticated())) {
+      throw new Error('User not authenticated or Supabase not configured');
+    }
+
+    const supabase = getSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // We already checked authentication, but TypeScript doesn't know that
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { error } = await supabase
+      .from('typing_sessions')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+    
+    console.log('✅ All user data cleared from Supabase');
+    return true;
+  }
 }

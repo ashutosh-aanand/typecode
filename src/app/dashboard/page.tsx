@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { getAnalyticsData, getRecentSessions } from '@/utils/analytics';
 import { AnalyticsData, TypingSession } from '@/types/analytics';
 import { DatabaseService } from '@/lib/database';
-import { isSupabaseConfigured, TypingSession as SupabaseSession, supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, TypingSession as SupabaseSession } from '@/lib/supabase';
 import Navbar from '@/components/common/Navbar';
 import TimeframeSelector from '@/components/dashboard/TimeframeSelector';
 import StatsOverview from '@/components/dashboard/StatsOverview';

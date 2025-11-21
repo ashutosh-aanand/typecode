@@ -1,13 +1,30 @@
 import { getSupabase, TypingSession, isSupabaseConfigured } from './supabase';
 import { User } from '@supabase/supabase-js';
 
+// Analytics data type
+type AnalyticsData = {
+  totalSessions: number;
+  averageCpm: number;
+  averageAccuracy: number;
+  bestCpm: number;
+  bestAccuracy: number;
+  totalTimeSeconds: number;
+  completedSessions: number;
+  currentStreak: number;
+  languageStats: Record<string, {
+    sessions: number;
+    averageCpm: number;
+    averageAccuracy: number;
+  }>;
+};
+
 export class DatabaseService {
   // Cache user to avoid multiple API calls within the same request
   private static cachedUser: User | null | undefined = undefined;
   
   // Cache analytics and sessions to prevent duplicate queries
   private static cachedAnalyticsData: {
-    analytics: any;
+    analytics: AnalyticsData;
     recentSessions: TypingSession[];
     timestamp: number;
   } | null = null;

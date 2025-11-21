@@ -56,12 +56,20 @@ export default function AuthButton() {
       ? `${window.location.origin}/`
       : '/';
     
-    await supabase.auth.signInWithOAuth({
+    // Debug: log the redirect URL being used
+    console.log('OAuth redirect URL:', redirectUrl);
+    console.log('Current origin:', typeof window !== 'undefined' ? window.location.origin : 'N/A');
+    
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectUrl
       }
     });
+    
+    if (error) {
+      console.error('OAuth sign-in error:', error);
+    }
   };
 
   const signOut = async () => {

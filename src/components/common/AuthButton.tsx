@@ -17,11 +17,28 @@ export default function AuthButton() {
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Handle OAuth callback - check for hash fragments
+    const handleAuthCallback = async () => {
+      // Check if we're returning from OAuth (has hash fragment with access_token)
+      if (window.location.hash.includes('access_token')) {
+        // Get the session from the URL hash
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session && !error) {
+          // Clear the hash from URL
+          window.history.replaceState(null, '', window.location.pathname);
+          setUser(session.user);
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Get initial session
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
-    });
+    };
+
+    handleAuthCallback();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -34,10 +51,15 @@ export default function AuthButton() {
   }, []);
 
   const signInWithGoogle = async () => {
+    // Get the current origin (works for both localhost and production)
+    const redirectUrl = typeof window !== 'undefined' 
+      ? `${window.location.origin}/`
+      : '/';
+    
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`
+        redirectTo: redirectUrl
       }
     });
   };

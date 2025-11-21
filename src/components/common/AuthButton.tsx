@@ -74,6 +74,9 @@ export default function AuthButton() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    // Clear cached user in DatabaseService
+    const { DatabaseService } = await import('@/lib/database');
+    DatabaseService.clearUserCache();
   };
 
   // Don't render anything until mounted (prevents hydration mismatch)

@@ -1,33 +1,62 @@
 import { getSupabase, TypingSession, isSupabaseConfigured } from './supabase';
+import { User } from '@supabase/supabase-js';
 
 export class DatabaseService {
-  // Helper method to check if user is authenticated
-  private static async isUserAuthenticated(): Promise<boolean> {
+  // Cache user to avoid multiple API calls within the same request
+  private static cachedUser: User | null | undefined = undefined;
+  
+  // Cache analytics and sessions to prevent duplicate queries
+  private static cachedAnalyticsData: {
+    analytics: any;
+    recentSessions: TypingSession[];
+    timestamp: number;
+  } | null = null;
+  private static CACHE_DURATION = 5000; // 5 seconds cache
+  
+  // Get authenticated user (cached per request)
+  // Uses getSession() instead of getUser() for better performance and consistency with AuthButton
+  private static async getAuthenticatedUser(): Promise<User | null> {
     if (!isSupabaseConfigured()) {
-      return false;
+      return null;
+    }
+    
+    // Return cached user if available
+    if (this.cachedUser !== undefined) {
+      return this.cachedUser;
     }
     
     try {
       const supabase = getSupabase();
-      const { data: { user } } = await supabase.auth.getUser();
-      return !!user;
+      // Use getSession() instead of getUser() - it's faster (checks local storage first)
+      // and consistent with AuthButton component
+      const { data: { session } } = await supabase.auth.getSession();
+      this.cachedUser = session?.user || null;
+      return this.cachedUser;
     } catch {
-      return false;
+      this.cachedUser = null;
+      return null;
     }
+  }
+  
+  // Helper method to check if user is authenticated
+  private static async isUserAuthenticated(): Promise<boolean> {
+    const user = await this.getAuthenticatedUser();
+    return !!user;
+  }
+  
+  // Clear user cache (useful after sign out)
+  static clearUserCache() {
+    this.cachedUser = undefined;
   }
   // Save typing session
   static async saveSession(sessionData: Omit<TypingSession, 'id' | 'created_at' | 'user_id'>) {
-    if (!(await this.isUserAuthenticated())) {
+    const user = await this.getAuthenticatedUser();
+    
+    if (!user) {
       throw new Error('User not authenticated or Supabase not configured');
     }
 
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    // We already checked authentication, but TypeScript doesn't know that
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
 
     const { data, error } = await supabase
       .from('typing_sessions')
@@ -44,17 +73,13 @@ export class DatabaseService {
 
   // Get user sessions
   static async getUserSessions(limit = 50) {
-    if (!(await this.isUserAuthenticated())) {
+    const user = await this.getAuthenticatedUser();
+    
+    if (!user) {
       return [];
     }
 
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    // We already checked authentication, but TypeScript doesn't know that
-    if (!user) {
-      return [];
-    }
 
     const { data, error } = await supabase
       .from('typing_sessions')
@@ -67,25 +92,77 @@ export class DatabaseService {
     return data || [];
   }
 
-  // Get analytics data
-  static async getAnalytics() {
-    if (!(await this.isUserAuthenticated())) {
-      // Return empty analytics for unauthenticated users
+  // Get analytics data and recent sessions in one call (optimized)
+  static async getAnalyticsAndRecentSessions(recentLimit = 10) {
+    const user = await this.getAuthenticatedUser();
+    
+    if (!user) {
+      // Return empty data for unauthenticated users
       return {
-        totalSessions: 0,
-        averageCpm: 0,
-        averageAccuracy: 0,
-        bestCpm: 0,
-        bestAccuracy: 0,
-        totalTimeSeconds: 0,
-        completedSessions: 0,
-        currentStreak: 0,
-        languageStats: {}
+        analytics: {
+          totalSessions: 0,
+          averageCpm: 0,
+          averageAccuracy: 0,
+          bestCpm: 0,
+          bestAccuracy: 0,
+          totalTimeSeconds: 0,
+          completedSessions: 0,
+          currentStreak: 0,
+          languageStats: {}
+        },
+        recentSessions: [],
+        isAuthenticated: false
       };
     }
 
-    const sessions = await this.getUserSessions(1000); // Get more for analytics
+    // Check cache first (prevent duplicate queries)
+    const now = Date.now();
+    if (this.cachedAnalyticsData && 
+        (now - this.cachedAnalyticsData.timestamp) < this.CACHE_DURATION) {
+      // Return cached data, but slice recent sessions based on requested limit
+      const recentSessions = this.cachedAnalyticsData.recentSessions.slice(0, recentLimit);
+      return {
+        analytics: this.cachedAnalyticsData.analytics,
+        recentSessions,
+        isAuthenticated: true
+      };
+    }
+
+    // Fetch all sessions once (we'll use this for both analytics and recent)
+    const supabase = getSupabase();
+    const { data: sessions, error } = await supabase
+      .from('typing_sessions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1000); // Get enough for analytics
     
+    if (error) throw error;
+    const allSessions = sessions || [];
+    
+    // Get recent sessions (first N from the sorted list)
+    const recentSessions = allSessions.slice(0, recentLimit);
+    
+    // Calculate analytics from all sessions
+    const analytics = this.calculateAnalytics(allSessions);
+    
+    // Cache the results
+    this.cachedAnalyticsData = {
+      analytics,
+      recentSessions: allSessions.slice(0, 10), // Cache full recent list
+      timestamp: now
+    };
+    
+    return { analytics, recentSessions, isAuthenticated: true };
+  }
+  
+  // Clear analytics cache (useful after saving new sessions)
+  static clearAnalyticsCache() {
+    this.cachedAnalyticsData = null;
+  }
+  
+  // Calculate analytics from sessions (extracted for reuse)
+  private static calculateAnalytics(sessions: TypingSession[]) {
     if (sessions.length === 0) {
       return {
         totalSessions: 0,
@@ -182,30 +259,29 @@ export class DatabaseService {
     };
   }
 
-  // Get recent sessions for dashboard
+  // Get analytics data (kept for backward compatibility, but uses optimized method)
+  static async getAnalytics() {
+    const { analytics } = await this.getAnalyticsAndRecentSessions(0);
+    return analytics;
+  }
+
+  // Get recent sessions for dashboard (kept for backward compatibility)
   static async getRecentSessions(limit = 10) {
-    if (!(await this.isUserAuthenticated())) {
-      return [];
-    }
-    
-    return this.getUserSessions(limit);
+    const { recentSessions } = await this.getAnalyticsAndRecentSessions(limit);
+    return recentSessions;
   }
 
   // Clear all user data from Supabase
   static async clearAllUserData() {
     console.log('🗑️ Starting cloud data deletion...');
     
-    if (!(await this.isUserAuthenticated())) {
+    const user = await this.getAuthenticatedUser();
+    
+    if (!user) {
       throw new Error('User not authenticated or Supabase not configured');
     }
 
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    // We already checked authentication, but TypeScript doesn't know that
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
 
     console.log(`🗑️ Deleting all sessions for user: ${user.id}`);
 

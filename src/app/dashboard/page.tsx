@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getAnalyticsData, getRecentSessions } from '@/utils/analytics';
 import { AnalyticsData, TypingSession } from '@/types/analytics';
 import { DatabaseService } from '@/lib/database';
@@ -19,18 +19,25 @@ export default function Dashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = useState<'1d' | '7d' | '30d' | '6m' | 'all'>('7d');
   const [loading, setLoading] = useState(true);
   const [usingSupabase, setUsingSupabase] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
+    // Prevent double execution in React Strict Mode (development)
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+    
     const loadAnalytics = async () => {
       try {
-        // Check if Supabase is configured and user is authenticated
+        // Check if Supabase is configured
         if (isSupabaseConfigured()) {
-          const { data: { user } } = await supabase.auth.getUser();
+          console.log('📊 Loading analytics from Supabase for authenticated user...');
+          // Use optimized method that fetches both analytics and recent sessions in one call
+          // This method handles authentication internally and caches the user
+          const { analytics: supabaseAnalytics, recentSessions: supabaseRecentSessions, isAuthenticated } = 
+            await DatabaseService.getAnalyticsAndRecentSessions(10);
           
-          if (user) {
-            console.log('📊 Loading analytics from Supabase for authenticated user...');
-            const supabaseAnalytics = await DatabaseService.getAnalytics();
-            const supabaseRecentSessions = await DatabaseService.getRecentSessions(10);
+          // Check if user is authenticated (not just if they have data)
+          if (isAuthenticated) {
           
           // Convert Supabase language stats to match analytics format
           const convertedLanguageStats: Record<string, {

@@ -5,6 +5,7 @@ import multiLanguageSnippets from '@/data/multi-language-snippets.json';
 import { calculateTypingMetrics, compareTexts } from '@/utils/metrics';
 import { addTypingSession } from '@/utils/analytics';
 import { DatabaseService } from '@/lib/database';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 const initialState = {
   currentSnippet: null,
@@ -24,11 +25,13 @@ const initialState = {
   restartCount: 0,
 };
 
-// Helper function to save session to Supabase
-const saveSessionToSupabase = async (
+// Helper function to save session to appropriate storage based on authentication
+const saveSession = async (
   language: string,
   snippetTitle: string,
   snippetId: string,
+  difficulty: string,
+  category: string,
   metrics: {
     cpm: number;
     wpm: number;
@@ -38,26 +41,62 @@ const saveSessionToSupabase = async (
     correctCharacters: number;
     errorCount: number;
   },
-  completed: boolean
+  completed: boolean,
+  restartCount: number
 ) => {
   try {
-    await DatabaseService.saveSession({
+    // Check if user is authenticated and Supabase is configured
+    if (isSupabaseConfigured()) {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // User is logged in - save to Supabase only
+        console.log('👤 User authenticated - saving to Supabase only');
+        await DatabaseService.saveSession({
+          language,
+          snippet_title: snippetTitle,
+          snippet_id: snippetId,
+          cpm: Math.round(metrics.cpm),
+          wpm: Math.round(metrics.wpm),
+          accuracy: parseFloat(metrics.accuracy.toFixed(2)),
+          time_in_seconds: Math.round(metrics.timeInSeconds),
+          total_characters: metrics.totalCharacters,
+          correct_characters: metrics.correctCharacters,
+          error_count: metrics.errorCount,
+          completed
+        });
+        console.log('✅ Session saved to Supabase successfully');
+        return;
+      }
+    }
+    
+    // User is not logged in or Supabase not configured - save to localStorage only
+    console.log('📱 User not authenticated - saving to localStorage only');
+    addTypingSession(
       language,
-      snippet_title: snippetTitle,
-      snippet_id: snippetId,
-      cpm: Math.round(metrics.cpm),
-      wpm: Math.round(metrics.wpm),
-      accuracy: parseFloat(metrics.accuracy.toFixed(2)),
-      time_in_seconds: Math.round(metrics.timeInSeconds),
-      total_characters: metrics.totalCharacters,
-      correct_characters: metrics.correctCharacters,
-      error_count: metrics.errorCount,
-      completed
-    });
-    console.log('✅ Session saved to Supabase successfully');
+      snippetId,
+      snippetTitle,
+      difficulty as 'easy' | 'medium' | 'hard',
+      category,
+      metrics,
+      completed,
+      restartCount
+    );
+    console.log('✅ Session saved to localStorage successfully');
+    
   } catch (error) {
-    console.log('⚠️ Failed to save to Supabase, keeping localStorage fallback:', error);
-    // localStorage fallback is already handled by addTypingSession
+    console.log('⚠️ Failed to save to primary storage, falling back to localStorage:', error);
+    // Fallback to localStorage if cloud saving fails
+    addTypingSession(
+      language,
+      snippetId,
+      snippetTitle,
+      difficulty as 'easy' | 'medium' | 'hard',
+      category,
+      metrics,
+      completed,
+      restartCount
+    );
   }
 };
 
@@ -165,25 +204,16 @@ export const useTypingStore = create<TypingStore>()(
 
           // Save analytics data
           if (currentSnippet) {
-            // Save to localStorage (existing functionality)
-            addTypingSession(
+            // Save session to appropriate storage based on authentication
+            saveSession(
               currentSnippet.language,
-              currentSnippet.id,
               currentSnippet.title,
+              currentSnippet.id,
               currentSnippet.difficulty,
               currentSnippet.category,
               metrics,
               true, // completed
               state.restartCount
-            );
-
-            // Save to Supabase (new functionality)
-            saveSessionToSupabase(
-              currentSnippet.language,
-              currentSnippet.title,
-              currentSnippet.id,
-              metrics,
-              true
             );
           }
 
@@ -268,25 +298,16 @@ export const useTypingStore = create<TypingStore>()(
             state.errors.length
           );
           
-          // Save to localStorage (existing functionality)
-          addTypingSession(
+          // Save session to appropriate storage based on authentication
+          saveSession(
             state.currentSnippet.language,
-            state.currentSnippet.id,
             state.currentSnippet.title,
+            state.currentSnippet.id,
             state.currentSnippet.difficulty,
             state.currentSnippet.category,
             metrics,
             false, // not completed
             state.restartCount
-          );
-
-          // Save to Supabase (new functionality)
-          saveSessionToSupabase(
-            state.currentSnippet.language,
-            state.currentSnippet.title,
-            state.currentSnippet.id,
-            metrics,
-            false
           );
         }
 

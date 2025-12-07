@@ -16,7 +16,10 @@ export default function ClearDataButton({ usingSupabase = false }: ClearDataButt
     setIsClearing(true);
     
     try {
-      // Clear local data first
+      // Clear analytics cache first (before deletion)
+      DatabaseService.clearAnalyticsCache();
+      
+      // Clear local data
       clearAnalyticsData();
       console.log('✅ Local data cleared');
       
@@ -25,6 +28,9 @@ export default function ClearDataButton({ usingSupabase = false }: ClearDataButt
         await DatabaseService.clearAllUserData();
         console.log('✅ Cloud data cleared');
       }
+      
+      // Clear cache again after deletion to ensure fresh data on reload
+      DatabaseService.clearAnalyticsCache();
       
       // Show success message
       alert(usingSupabase 
@@ -37,6 +43,8 @@ export default function ClearDataButton({ usingSupabase = false }: ClearDataButt
       
     } catch (error) {
       console.error('❌ Error clearing data:', error);
+      // Clear cache even on error
+      DatabaseService.clearAnalyticsCache();
       alert(usingSupabase 
         ? '⚠️ Local data cleared, but there was an error clearing cloud data. Please try again or check your connection.'
         : '❌ Error clearing local data. Please try again.'

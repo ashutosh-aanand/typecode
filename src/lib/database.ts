@@ -313,6 +313,9 @@ export class DatabaseService {
       throw error;
     }
     
+    // Clear analytics cache after deletion
+    this.clearAnalyticsCache();
+    
     console.log('✅ All user data cleared from Supabase. Deleted rows:', data?.length || 0);
     return { deletedCount: data?.length || 0 };
   }

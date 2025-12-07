@@ -11,6 +11,7 @@ import StatsOverview from '@/components/dashboard/StatsOverview';
 import PersonalBests from '@/components/dashboard/PersonalBests';
 import LanguageBreakdown from '@/components/dashboard/LanguageBreakdown';
 import RecentSessions from '@/components/dashboard/RecentSessions';
+import ActivityHeatmap from '@/components/dashboard/ActivityHeatmap';
 import ClearDataButton from '@/components/dashboard/ClearDataButton';
 
 export default function Dashboard() {
@@ -25,7 +26,7 @@ export default function Dashboard() {
     // Prevent double execution in React Strict Mode (development)
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
-    
+
     const loadAnalytics = async () => {
       try {
         // Check if Supabase is configured
@@ -33,72 +34,92 @@ export default function Dashboard() {
           console.log('📊 Loading analytics from Supabase for authenticated user...');
           // Use optimized method that fetches both analytics and recent sessions in one call
           // This method handles authentication internally and caches the user
-          const { analytics: supabaseAnalytics, recentSessions: supabaseRecentSessions, isAuthenticated } = 
+          const { analytics: supabaseAnalytics, recentSessions: supabaseRecentSessions, allSessions, isAuthenticated } =
             await DatabaseService.getAnalyticsAndRecentSessions(10);
-          
+
           // Check if user is authenticated (not just if they have data)
           if (isAuthenticated) {
-          
-          // Convert Supabase language stats to match analytics format
-          const convertedLanguageStats: Record<string, {
-            sessions: number;
-            averageCpm: number;
-            averageAccuracy: number;
-            bestCpm: number;
-            totalTimeSeconds: number;
-          }> = {};
 
-          Object.entries(supabaseAnalytics.languageStats).forEach(([language, stats]) => {
-            convertedLanguageStats[language] = {
-              sessions: stats.sessions,
-              averageCpm: stats.averageCpm,
-              averageAccuracy: stats.averageAccuracy,
-              bestCpm: stats.averageCpm, // Use average as best for now
-              totalTimeSeconds: 0 // Not available from Supabase yet
+            // Convert Supabase language stats to match analytics format
+            const convertedLanguageStats: Record<string, {
+              sessions: number;
+              averageCpm: number;
+              averageAccuracy: number;
+              bestCpm: number;
+              totalTimeSeconds: number;
+            }> = {};
+
+            Object.entries(supabaseAnalytics.languageStats).forEach(([language, stats]) => {
+              convertedLanguageStats[language] = {
+                sessions: stats.sessions,
+                averageCpm: stats.averageCpm,
+                averageAccuracy: stats.averageAccuracy,
+                bestCpm: stats.averageCpm, // Use average as best for now
+                totalTimeSeconds: 0 // Not available from Supabase yet
+              };
+            });
+
+            // Convert all Supabase sessions to analytics format for heatmap and filtering
+            const convertedAllSessions = (allSessions || []).map((session: SupabaseSession) => ({
+              id: session.id,
+              timestamp: new Date(session.created_at).getTime(),
+              language: session.language,
+              snippetTitle: session.snippet_title,
+              snippetId: session.snippet_id || '',
+              cpm: session.cpm,
+              wpm: session.wpm,
+              accuracy: session.accuracy,
+              timeInSeconds: session.time_in_seconds,
+              totalCharacters: session.total_characters,
+              correctCharacters: session.correct_characters,
+              errorCount: session.error_count,
+              completed: session.completed,
+              difficulty: 'medium' as const,
+              category: 'algorithm' as const,
+              restarts: 0
+            }));
+
+            // Convert Supabase data to match our analytics format
+            const convertedAnalytics: AnalyticsData = {
+              sessions: convertedAllSessions, // Use the full converted sessions list
+              dailyStats: {}, // Not implemented yet
+              overallStats: {
+                totalSessions: supabaseAnalytics.totalSessions,
+                totalTimeSeconds: supabaseAnalytics.totalTimeSeconds,
+                averageCpm: supabaseAnalytics.averageCpm,
+                averageAccuracy: supabaseAnalytics.averageAccuracy,
+                bestCpm: supabaseAnalytics.bestCpm,
+                bestAccuracy: supabaseAnalytics.bestAccuracy,
+                favoriteLanguage: 'java', // Default for now
+                totalCompletedSessions: supabaseAnalytics.completedSessions,
+                currentStreak: supabaseAnalytics.currentStreak,
+                longestStreak: supabaseAnalytics.currentStreak, // Use current as longest for now
+                lastSessionDate: new Date().toISOString().split('T')[0], // Today as default
+                languageStats: convertedLanguageStats,
+                difficultyStats: {} // Not implemented yet
+              },
+              lastUpdated: Date.now()
             };
-          });
 
-          // Convert Supabase data to match our analytics format
-          const convertedAnalytics: AnalyticsData = {
-            sessions: [], // We'll use the converted sessions
-            dailyStats: {}, // Not implemented yet
-            overallStats: {
-              totalSessions: supabaseAnalytics.totalSessions,
-              totalTimeSeconds: supabaseAnalytics.totalTimeSeconds,
-              averageCpm: supabaseAnalytics.averageCpm,
-              averageAccuracy: supabaseAnalytics.averageAccuracy,
-              bestCpm: supabaseAnalytics.bestCpm,
-              bestAccuracy: supabaseAnalytics.bestAccuracy,
-              favoriteLanguage: 'java', // Default for now
-              totalCompletedSessions: supabaseAnalytics.completedSessions,
-              currentStreak: supabaseAnalytics.currentStreak,
-              longestStreak: supabaseAnalytics.currentStreak, // Use current as longest for now
-              lastSessionDate: new Date().toISOString().split('T')[0], // Today as default
-              languageStats: convertedLanguageStats,
-              difficultyStats: {} // Not implemented yet
-            },
-            lastUpdated: Date.now()
-          };
-
-          // Convert Supabase sessions to analytics format
-          const convertedSessions = supabaseRecentSessions.map((session: SupabaseSession) => ({
-            id: session.id,
-            timestamp: new Date(session.created_at).getTime(),
-            language: session.language,
-            snippetTitle: session.snippet_title,
-            snippetId: session.snippet_id || '',
-            cpm: session.cpm,
-            wpm: session.wpm,
-            accuracy: session.accuracy,
-            timeInSeconds: session.time_in_seconds,
-            totalCharacters: session.total_characters,
-            correctCharacters: session.correct_characters,
-            errorCount: session.error_count,
-            completed: session.completed,
-            difficulty: 'medium' as const, // Default since not stored in DB
-            category: 'algorithm' as const, // Default since not stored in DB
-            restarts: 0 // Default since not stored in DB
-          }));
+            // Convert Supabase sessions to analytics format
+            const convertedSessions = supabaseRecentSessions.map((session: SupabaseSession) => ({
+              id: session.id,
+              timestamp: new Date(session.created_at).getTime(),
+              language: session.language,
+              snippetTitle: session.snippet_title,
+              snippetId: session.snippet_id || '',
+              cpm: session.cpm,
+              wpm: session.wpm,
+              accuracy: session.accuracy,
+              timeInSeconds: session.time_in_seconds,
+              totalCharacters: session.total_characters,
+              correctCharacters: session.correct_characters,
+              errorCount: session.error_count,
+              completed: session.completed,
+              difficulty: 'medium' as const, // Default since not stored in DB
+              category: 'algorithm' as const, // Default since not stored in DB
+              restarts: 0 // Default since not stored in DB
+            }));
 
             setAnalytics(convertedAnalytics);
             setRecentSessions(convertedSessions);
@@ -130,10 +151,10 @@ export default function Dashboard() {
   // Filter sessions based on selected timeframe
   const getFilteredSessions = () => {
     if (!analytics) return [];
-    
+
     const now = new Date();
     const cutoffDate = new Date();
-    
+
     switch (selectedTimeframe) {
       case '1d':
         cutoffDate.setDate(now.getDate() - 1);
@@ -150,8 +171,8 @@ export default function Dashboard() {
       case 'all':
         return analytics.sessions;
     }
-    
-    return analytics.sessions.filter(session => 
+
+    return analytics.sessions.filter(session =>
       new Date(session.timestamp) >= cutoffDate
     );
   };
@@ -160,18 +181,18 @@ export default function Dashboard() {
   const filteredSessions = getFilteredSessions();
   const filteredStats = {
     totalSessions: filteredSessions.length,
-    averageCpm: filteredSessions.length > 0 
-      ? filteredSessions.reduce((sum, s) => sum + s.cpm, 0) / filteredSessions.length 
+    averageCpm: filteredSessions.length > 0
+      ? filteredSessions.reduce((sum, s) => sum + s.cpm, 0) / filteredSessions.length
       : 0,
-    averageAccuracy: filteredSessions.length > 0 
-      ? filteredSessions.reduce((sum, s) => sum + s.accuracy, 0) / filteredSessions.length 
+    averageAccuracy: filteredSessions.length > 0
+      ? filteredSessions.reduce((sum, s) => sum + s.accuracy, 0) / filteredSessions.length
       : 0,
     totalTimeSeconds: filteredSessions.reduce((sum, s) => sum + s.timeInSeconds, 0),
-    bestCpm: filteredSessions.length > 0 
-      ? Math.max(...filteredSessions.map(s => s.cpm)) 
+    bestCpm: filteredSessions.length > 0
+      ? Math.max(...filteredSessions.map(s => s.cpm))
       : 0,
-    bestAccuracy: filteredSessions.length > 0 
-      ? Math.max(...filteredSessions.map(s => s.accuracy)) 
+    bestAccuracy: filteredSessions.length > 0
+      ? Math.max(...filteredSessions.map(s => s.accuracy))
       : 0,
     completedSessions: filteredSessions.filter(s => s.completed).length,
   };
@@ -190,7 +211,7 @@ export default function Dashboard() {
   }
 
   const { overallStats } = analytics;
-  
+
   // Use filtered stats for display, fallback to overall stats for sections that don't change
   const displayStats = selectedTimeframe === 'all' ? overallStats : {
     ...overallStats,
@@ -198,7 +219,7 @@ export default function Dashboard() {
   };
 
   // Calculate completion rate
-  const completionRate = displayStats.totalSessions > 0 
+  const completionRate = displayStats.totalSessions > 0
     ? (filteredStats.completedSessions / displayStats.totalSessions) * 100
     : 0;
 
@@ -209,39 +230,41 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Data Source Indicator */}
         <div className="flex justify-center mb-4">
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${
-            usingSupabase 
-              ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-              : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-          }`}>
-            <div className={`w-2 h-2 rounded-full ${
-              usingSupabase ? 'bg-green-500' : 'bg-yellow-500'
-            }`}></div>
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs ${usingSupabase
+            ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+            : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+            }`}>
+            <div className={`w-2 h-2 rounded-full ${usingSupabase ? 'bg-green-500' : 'bg-yellow-500'
+              }`}></div>
             {usingSupabase ? 'Cloud Data - Synced across devices' : 'Local Data - Sign in for cloud sync'}
           </div>
         </div>
 
-        <TimeframeSelector 
+        <TimeframeSelector
           selectedTimeframe={selectedTimeframe}
           onTimeframeChange={setSelectedTimeframe}
         />
 
-        <StatsOverview 
+        <StatsOverview
           totalSessions={displayStats.totalSessions}
           averageCpm={displayStats.averageCpm}
           averageAccuracy={displayStats.averageAccuracy}
           totalTimeSeconds={displayStats.totalTimeSeconds}
         />
 
+        <div className="mb-12">
+          <ActivityHeatmap sessions={analytics.sessions} />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12">
-          <PersonalBests 
+          <PersonalBests
             bestCpm={displayStats.bestCpm}
             bestAccuracy={displayStats.bestAccuracy}
             completionRate={completionRate}
             currentStreak={overallStats.currentStreak}
           />
 
-          <LanguageBreakdown 
+          <LanguageBreakdown
             languageStats={overallStats.languageStats}
           />
         </div>

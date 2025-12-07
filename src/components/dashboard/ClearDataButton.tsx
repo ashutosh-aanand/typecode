@@ -45,8 +45,14 @@ export default function ClearDataButton({ usingSupabase = false }: ClearDataButt
       console.error('❌ Error clearing data:', error);
       // Clear cache even on error
       DatabaseService.clearAnalyticsCache();
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isPermissionError = errorMessage.includes('permission') || errorMessage.includes('policy') || errorMessage.includes('RLS');
+      
       alert(usingSupabase 
-        ? '⚠️ Local data cleared, but there was an error clearing cloud data. Please try again or check your connection.'
+        ? isPermissionError
+          ? '⚠️ Delete permission denied. Please add a DELETE RLS policy in Supabase. Check DATABASE.md for the SQL command.'
+          : '⚠️ Local data cleared, but there was an error clearing cloud data. Please check the console for details.'
         : '❌ Error clearing local data. Please try again.'
       );
     } finally {

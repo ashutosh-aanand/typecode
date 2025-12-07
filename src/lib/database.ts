@@ -310,6 +310,10 @@ export class DatabaseService {
 
     if (error) {
       console.error('❌ Supabase deletion error:', error);
+      // Check if it's an RLS policy error
+      if (error.message?.includes('policy') || error.message?.includes('permission') || error.code === '42501') {
+        throw new Error('Delete permission denied. Please add a DELETE policy in Supabase RLS settings. See DATABASE.md for SQL.');
+      }
       throw error;
     }
     

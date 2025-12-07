@@ -71,6 +71,10 @@ CREATE POLICY "Users can view own sessions" ON public.typing_sessions
 -- Users can insert their own sessions
 CREATE POLICY "Users can insert own sessions" ON public.typing_sessions
     FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can delete their own sessions
+CREATE POLICY "Users can delete own sessions" ON public.typing_sessions
+    FOR DELETE USING (auth.uid() = user_id);
 ```
 
 ## Configuration
